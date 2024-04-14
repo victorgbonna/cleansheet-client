@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@syncfusion/ej2-react-heatmap": "^24.2.9",
     "@tanstack/react-query": "^5.18.1",
     "axios": "^1.6.7",
+    "chart.heatmap.js": "^0.0.1-alpha",
+    "chart.js": "^4.4.1",
     "csv-parser": "^3.0.0",
+    "d3.js": "^0.0.2-security",
     "fs": "^0.0.1-security",
+    "highcharts-react-official": "^3.2.1",
     "next": "13.5.6",
+    "plotly": "^1.0.6",
+    "plotly.js-dist": "^2.30.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-plotly.js": "^2.6.0"
   },
   "devDependencies": {
     "autoprefixer": "^10",

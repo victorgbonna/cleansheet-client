@@ -16,7 +16,7 @@ export default function Result({league, year}) {
       league, year
     })
   }
-
+  const months=['January', 'February', 'March', 'April', 'May', 'June', 'August', 'September', 'October', 'November', 'December']
   const {isLoading:seasonLoading, data:season_data, error, isError:isSeasonError}= useQuery(
     {
       queryKey:['season-info:',league, year],
@@ -28,6 +28,8 @@ export default function Result({league, year}) {
       retry:false
     }
   )
+  const [monthOptions,setMonthOptions]=useState(['Beginning','January', 'February','March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Ending'])
+  const [mounted, setMounted]= useState(false)
   const updateData=({season_data,options})=>{
     if(!season_data){
       // do codes
@@ -36,9 +38,58 @@ export default function Result({league, year}) {
 
     consolelog({season_data})
     const csv_files= fake
+    const {monthFrom, monthTo, kickOffTime}=options
+
+    consolelog({monthTo})
+    let range_of_months=monthOptions
+    if(!mounted){
+      const starting_month=csv_files[0].match_date.split(' ')[1]
+      // const ending_month=csv_files?.find(({game_week})=>game_week===38)?.match_date.split(' ')[1]
+      // const ending_month=Math.max(...csv_files.filter(game=>parseInt(game.game_week)).map(game => game.game_week))
+      const unique_gmwk=new Set(csv_files.map(game => parseInt(game.game_week)))
+      const ending_month=csv_files.find(game=>game.game_week===Math.max(...unique_gmwk)).match_date.split(' ')[1]
+
+      const start_months= months.slice(months.indexOf(starting_month))
+      const before_start_months=months.slice(0,months.indexOf(starting_month))
+      const before_plus_start_months=[...start_months, ...before_start_months]
+
+      const end_months= before_plus_start_months.slice(0,before_plus_start_months.indexOf(ending_month)+1)
+      consolelog({start_months, end_months, before_start_months,before_plus_start_months, ending_month})
+      
+      const new_range_of_months=[...new Set([...start_months,...end_months])]
+      setMonthOptions(new_range_of_months)
+      setMounted(true)
+      range_of_months=new_range_of_months
+
+    }
+
+    const filtered_data=csv_files.filter(
+      ({match_date,match_period},ind)=>{
+
+
+        const item_month= match_date.split(' ')[1]
+        const month_pos=range_of_months.indexOf(monthFrom)
+        const month_to_pos=range_of_months.indexOf(monthTo)
+        const item_pos=range_of_months.indexOf(item_month)
+
+        if(ind===1){
+          consolelog({item_month, month_pos, month_to_pos, item_pos, range_of_months})
+        }
+        if(month_pos>=0){
+          if(item_pos<month_pos) return false
+        }
+        if(month_to_pos>=0){
+          if(item_pos>month_to_pos) return false
+        }
+        if(['early kick-off', 'late kick-off', 'standard kick-off'].includes(kickOffTime)){
+          return match_period===kickOffTime        
+        }
+        return true
+      }
+    )
     // parseCSVFile('./public/your-file.csv')
     // consolelog({csv_files})
-    return {csv:{data:csv_files, all_data:csv_files}, body:{}}
+    return {csv:{data:filtered_data, all_data:csv_files}, body:{}}
   } 
   // const toggleOptions=(season_data)=>{
   //   if(!season_data) return {}
@@ -48,10 +99,10 @@ export default function Result({league, year}) {
 
   const [options, setOptions]= useState({
     monthFrom:"Beginning",
-    monthTo:"Ending", kickOffTime:"any"
+    monthTo:"Ending", kickOffTime:"all"
   })
 
-  const monthOptions=['Beginning','January', 'February','March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Ending']
+
   const {body, csv} = useMemo(() => updateData({season_data,options}), [season_data,options]);
   
   // const {} = useMemo(() => updateData({season_data,options}), [csv]);
@@ -68,18 +119,26 @@ export default function Result({league, year}) {
         <meta name="description" content={`Explore match performances, goal, cleansheets and key moments in our comprehensive statistical report.`}/>
         {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
-      <div className="flex items-start rounded-[27px] border shadow-lg h-[700px]">
+      <div className="flex items-start rounded-[27px] border shadow-lg h-[700px] relative">
         <Sidebar active={activeTab} onClick={(a)=>setActiveTab(a)}/>
         <section className=" py-2 pr-3  ml-[-3px] w-[100%]">
-          <div className="bg-[#F9F9F9] py-5 pl-[30px] pr-5 rounded-r-[27px]">
-            <div>
-                <h1 className="uppercase text-2xl font-bold mb-[30px]">{year} {league} SEASON STATISTICS</h1>
+          <div className="bg-[#F9F9F9] pb-5 pl-[30px] pr-5 rounded-r-[27px] relative">
+            <div className="sticky top-0 bg-[#F9F9F9] py-5 z-[10]">
+                <h1 className="uppercase text-2xl font-bold mb-[30px]">{year} {league} SEASON STATISTICS <span className="opacity-75 text-sm lowercase">{csv?.data?.length? ' out of '+csv?.data?.length+' matches':''}</span></h1>
                 <hr />
             </div>
-            <div className="grid grid-cols-3 gap-[10px] w-[1000px] mt-6 mb-2">
+            <section className="">
+            <div className="grid grid-cols-3 gap-[10px] w-[1000px] mb-2">
               <div>
                 <SelectOptionAsObjectValue
-                  options={monthOptions.slice(0, monthOptions.indexOf(options.monthTo)).map((month)=>({label:month,value:month}))}
+                  options={
+                      (
+                      monthOptions.includes(options.monthTo)?
+                        monthOptions.slice(0, monthOptions.indexOf(options.monthTo)):
+                        monthOptions
+                      )
+                      .map((month)=>({label:month,value:month}))
+                    }
                   onChange={(x)=>setOptions({...options, monthFrom:x.value})}
                   label={options.monthFrom || 'Beginning'}
                   value={options.monthFrom || 'Beginning'}
@@ -90,8 +149,15 @@ export default function Result({league, year}) {
               </div>
               <div>
               <SelectOptionAsObjectValue
-                  options={monthOptions.slice(monthOptions.indexOf(options.monthFrom)+1).map((month)=>({label:month,value:month}))}
-                  onChange={(x)=>setOptions({...options, monthTo:x})}
+                  options={
+                    (
+                      monthOptions.includes(options.monthFrom)?
+                        monthOptions.slice(monthOptions.indexOf(options.monthFrom)):
+                        monthOptions
+                    )
+                    .map((month)=>({label:month,value:month}))
+                  }
+                  onChange={(x)=>setOptions({...options, monthTo:x.value})}
                   label={options.monthTo || 'Ending'}
                   value={options.monthTo || 'Ending'}
                   leftSibling={
@@ -103,16 +169,19 @@ export default function Result({league, year}) {
                 <SelectOptionAsObjectValue
                     options={['All', 'Early','Standard', 'Late'].map((kickoff)=>({label:kickoff,value:kickoff.toLowerCase()+' kick-off'}))}
                     onChange={(x)=>setOptions({...options, kickOffTime:x.value})}
-                    label={options.kickOffTime.split(' ')[0] || 'any'}
-                    value={options.kickOffTime || 'any'}
+                    label={options.kickOffTime.split(' ')[0] || 'all'}
+                    value={options.kickOffTime || 'all'}
                     leftSibling={
                       <p className="opacity-75 text-gray-500">Kick-off Time:</p>
                     }
                   />
               </div>
             </div>
-            <div className="min-h-[580px] flex items-center flex-col justify-center">
-              <DataFetch isLoading={seasonLoading} isError={isSeasonError} 
+            <div style={(seasonLoading && false) || (isSeasonError && false)?{justifyContent:"center"}:{}} 
+              className={`min-h-[580px] flex items-center flex-col`}>
+              <DataFetch 
+                isLoading={false} 
+                isError={false} 
                 isEmpty={false} errorMsg={error?.message}
                 emptyComponent={
                   <div className="">
@@ -126,11 +195,13 @@ export default function Result({league, year}) {
                 }
                 
                 >
-                <section>
-                  <Chart data={csv.data} tab={activeTab}/>
-                </section>
+                <div className="self-start w-full max-h-[470px] overflow-y-scroll">
+                  <Chart data={csv.data} tab={activeTab} monthOptions={monthOptions}/>
+                </div>
               </DataFetch>
-            </div>            
+            </div>           
+            </section>
+             
           </div>
         </section>
       </div>
