@@ -37,3 +37,24 @@ body {
     text-wrap: balance;
   }
 }
+
+.modal-layout > div {
+  animation: popup 0.4s;
+}
+@keyframes popup {
+  0% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+ul {
+  list-style-type: none;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}

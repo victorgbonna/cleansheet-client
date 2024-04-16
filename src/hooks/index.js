@@ -6,6 +6,8 @@ export { default as useHttpServices } from './useHttpServices';
 export { default as useOnClickOutside } from './useOnClickOutside';
 export { default as useLocalStorage } from './useLocalStorage';
 export { default as useFileInput } from './useFileInput';
+export { default as useRouterQuery } from './useRouterQuery';
+
 // export { default as useFileInput } from './useFileInput';
 
 

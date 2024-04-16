@@ -2,52 +2,88 @@ import { Chart, DataFetch, SelectOptionAsObjectValue } from "@/components";
 import Sidebar from "@/components/SideBar";
 import { API_ENDPOINTS, consolelog} from "@/configs";
 import fake from "@/configs/fakedata";
-import { useHttpServices } from "@/hooks";
+import { useHttpServices,useRouterQuery } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
+import { EnterChatContext } from "@/context";
+import XLSX from "xlsx";
+import { EnterChatModal, Ok } from '@/components/modal'
 
-export default function Result({league, year}) {
+export default function Result() {
+  const { showModal, setShowModal } = useContext(EnterChatContext);
+  const {routerQuery, routerPushSolo, routerIsReady}= useRouterQuery()
   const {postData}=useHttpServices()
+  const [season_not_equal, set_season_not_equal]= useState({})
 
   const [activeTab, setActiveTab]= useState('general')
   const getSeasonData=async()=>{    
     return await postData(API_ENDPOINTS.GET_SEASON_INFO,{
-      league, year
+      league:routerQuery.league, 
+      year:routerQuery.year.toLowerCase()
     })
   }
   const months=['January', 'February', 'March', 'April', 'May', 'June', 'August', 'September', 'October', 'November', 'December']
   const {isLoading:seasonLoading, data:season_data, error, isError:isSeasonError}= useQuery(
     {
-      queryKey:['season-info:',league, year],
+      queryKey:['season-info:',routerQuery.league, routerQuery.year],
       queryFn:()=>getSeasonData(),
       onSettled:(data)=>{
         consolelog({finalData:data})
 
       },
-      retry:false
+      enabled:routerIsReady && !showModal,
+      retry:false,
     }
   )
+
+  const downloadRecordAsExcel= ({data, name}) => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    XLSX.writeFile(workbook, name);
+  };
   const [monthOptions,setMonthOptions]=useState(['Beginning','January', 'February','March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Ending'])
   const [mounted, setMounted]= useState(false)
   const updateData=({season_data,options})=>{
-    if(!season_data){
+    if(!season_data?.data?.data){
+      return {csv:{data:[], all_data:[]}, body:{}}
       // do codes
       // carry the first and use to update the options
     }
 
-    consolelog({season_data})
-    const csv_files= fake
+    // consolelog({season_data:season_data?.data?.data})
+    const csv_files= season_data?.data?.data?.csv_data
+    // || fake
+    const body=season_data?.data?.data?.body 
+    // || {}
+
+    consolelog({csv_files})
+    // calculate the total handshakes = (n*(n-1))/2
+    if (body.overFilled>0){
+        set_season_not_equal({
+          problem:"over-complete",
+          teamsInQuestion:[]
+        })
+    }
+    if (body.overFilled<0){
+      set_season_not_equal({
+        problem:"in-complete",
+        teamsInQuestion:body.remainingFixtures
+      })
+    }
     const {monthFrom, monthTo, kickOffTime}=options
 
     consolelog({monthTo})
     let range_of_months=monthOptions
     if(!mounted){
+      consolelog(csv_files.length)
       const starting_month=csv_files[0].match_date.split(' ')[1]
       // const ending_month=csv_files?.find(({game_week})=>game_week===38)?.match_date.split(' ')[1]
       // const ending_month=Math.max(...csv_files.filter(game=>parseInt(game.game_week)).map(game => game.game_week))
       const unique_gmwk=new Set(csv_files.map(game => parseInt(game.game_week)))
-      const ending_month=csv_files.find(game=>game.game_week===Math.max(...unique_gmwk)).match_date.split(' ')[1]
+      consolelog({unique_gmwk})
+      const ending_month=csv_files.find(game=>parseInt(game.game_week)==Math.max(...unique_gmwk)).match_date.split(' ')[1]
 
       const start_months= months.slice(months.indexOf(starting_month))
       const before_start_months=months.slice(0,months.indexOf(starting_month))
@@ -124,7 +160,15 @@ export default function Result({league, year}) {
         <section className=" py-2 pr-3  ml-[-3px] w-[100%]">
           <div className="bg-[#F9F9F9] pb-5 pl-[30px] pr-5 rounded-r-[27px] relative">
             <div className="sticky top-0 bg-[#F9F9F9] py-5 z-[10]">
-                <h1 className="uppercase text-2xl font-bold mb-[30px]">{year} {league} SEASON STATISTICS <span className="opacity-75 text-sm lowercase">{csv?.data?.length? ' out of '+csv?.data?.length+' matches':''}</span></h1>
+                <div className="flex justify-between items-end mb-[30px]">
+                  <h1 className="uppercase text-xl font-bold">{routerQuery.year} {routerQuery.league} STATISTICS <span className="opacity-75 text-sm lowercase">{csv?.all_data?.length? ' out of '+csv?.data?.length+' matches':''}</span></h1>
+                  <div className="flex gap-x-4 text-sm">
+                    <button onClick={()=>setShowModal('yes')} className="rounded-md text-white bg-blue-500 px-3 py-2">Select Another Season</button>
+                    <button onClick={()=>downloadRecordAsExcel({data:csv.all_data, name:body.season+'_'+body.year+'.xlsx'})} className="rounded-md bg-green-500 text-white px-3 py-2">Download Data</button>
+                    <button className="rounded-md bg-gray-200 px-3 py-2 opacity-3 text-gray-600" disabled={true}>Download Report <span className="text-xs">{'(TBA)'}</span></button>
+                    
+                  </div>
+                </div>
                 <hr />
             </div>
             <section className="">
@@ -180,9 +224,9 @@ export default function Result({league, year}) {
             <div style={(seasonLoading && false) || (isSeasonError && false)?{justifyContent:"center"}:{}} 
               className={`min-h-[580px] flex items-center flex-col`}>
               <DataFetch 
-                isLoading={false} 
-                isError={false} 
-                isEmpty={false} errorMsg={error?.message}
+                isLoading={seasonLoading} 
+                isError={isSeasonError} 
+                isEmpty={!seasonLoading && !csv?.all_data?.length} errorMsg={error?.message}
                 emptyComponent={
                   <div className="">
                     <p>Data gotten is empty</p>
@@ -196,7 +240,9 @@ export default function Result({league, year}) {
                 
                 >
                 <div className="self-start w-full max-h-[470px] overflow-y-scroll">
-                  <Chart data={csv.data} tab={activeTab} monthOptions={monthOptions}/>
+                  <Chart data={csv.data} tab={activeTab} monthOptions={monthOptions} season_data={{
+                    league:routerQuery.league
+                  }}/>
                 </div>
               </DataFetch>
             </div>           
@@ -205,24 +251,55 @@ export default function Result({league, year}) {
           </div>
         </section>
       </div>
+      <EnterChatModal onNext={(new_query)=>{
+        setShowModal(false)
+        routerPushSolo(new_query)
+      }}/>
+      {!!season_not_equal?.problem 
+        &&
+        <Ok 
+          problemObj={season_not_equal}
+          text={
+            season_not_equal.problem==="over-complete"?
+            <div className="flex justify-center item-center">
+              <p>WARNING!! WARNING !!</p> 
+              <p>You might encounter some discrepancies in the analysis as the data scraped from the source is over-populated.</p>
+              <p>If you're looking for the beauty of analysis, you can pass it up.</p> 
+              <p>However, if you want correct information, please be patient as our staff is currently working on them.</p>
+            </div>:
+           <div className="flex justify-center item-center">
+            <p>WARNING!! WARNING !!</p> 
+            <p>You may notice some discrepancies in the study since the data taken from the source happens to be under-populated.</p>
+            <p>The involved teams that might cause this are mentioned below.</p>
+            <div>
+              {season_not_equal.teamsInQuestion.map((team)=>
+                <p>{team}</p>
+              )}
+            </div>
+            {/* t is highly possible that matches involving mentioned teams were not scraped properly by our scraper.  */}
+            <p>Do well to be patient, our team is working on it</p>
+          </div>}
+          onClose={()=>set_season_not_equal({})}
+        />
+      }
     </main>
   );
 }
 
-export const getServerSideProps = async (req) => {
+// export const getServerSideProps = async (req) => {
   
-  const {league, year}=req.query
-  if(!league || !year){
-    return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-  }
-  return {
-    props: {
-        league, year
-    },
-  };
-};
+//   const {league, year}=req.query
+//   if(!league || !year){
+//     return {
+//         redirect: {
+//           destination: '/',
+//           permanent: false,
+//         },
+//       };
+//   }
+//   return {
+//     props: {
+//         league, year
+//     },
+//   };
+// };

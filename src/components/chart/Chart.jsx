@@ -2,10 +2,11 @@ import { commafy, consolelog } from "@/configs"
 import { useEffect, useMemo, useState } from "react";
 import { RadarPlot, LinePlot, MultipleBarChart, PieChart } from "./chartTools";
 import { ImageContainer } from '..';
+import { EnterChatContext } from "@/context";
 // import SwarmPlot from "./chartTools/SwarmPlot";
 
 
-function General({data, monthOptions}){
+function General({data, monthOptions, season_data}){
     const stringWithNumbers = (x)=>{
         return x+''.split('').filter(char => !isNaN(char)).join(''); 
     }
@@ -20,28 +21,28 @@ function General({data, monthOptions}){
 
         const tt_cleansheet_kept=data.reduce(function (acc, obj) { 
             const {home_goals, away_goals}=obj
-            const total_clean_sheets_for_the_match=(+home_goals===0?1:0)+(+away_goals===0?1:0)
+            const total_clean_sheets_for_the_match=(+home_goals==0?1:0)+(+away_goals==0?1:0)
             // const total_goal_for_the_match= parseInt(stringWithNumbers(home_goals))+parseInt(stringWithNumbers(away_goals))
             return acc +total_clean_sheets_for_the_match; 
         }, 0);
 
         const tt_goalless_min=data.reduce(function (acc, obj) { 
-            const goalless_min_for_the_match=(+obj['min 1-15 goals']===0?15:0)+(+obj['min 16-30 goals']===0?15:0)+(+obj['min 31-45+ goals']===0?15:0)+(+obj['min 46-60 goals']===0?15:0)+(+obj['min 61-75 goals']===0?15:0)+(+obj['min 76-90 goals']===0?15:0)
+            const goalless_min_for_the_match=(+obj['min 1-15 goals']==0?15:0)+(+obj['min 16-30 goals']==0?15:0)+(+obj['min 31-45+ goals']==0?15:0)+(+obj['min 46-60 goals']==0?15:0)+(+obj['min 61-75 goals']==0?15:0)+(+obj['min 76-90 goals']==0?15:0)
             return acc +goalless_min_for_the_match; 
         }, 0);
         const tt_goalless_draws=data.reduce(function (acc, obj) { 
-            const goalless_draws_for_the_match=obj.total_goals===0?1:0
+            const goalless_draws_for_the_match=obj.total_goals==0?1:0
             return acc +goalless_draws_for_the_match; 
         }, 0);
         const stoppage_goals= data.reduce(function (acc, obj) { 
-            return acc+obj['stoppage_time goals'] 
+            return acc+parseInt(obj['stoppage_time goals'])
         }, 0);
 
         const end_time_stoppage_goals= data.reduce(function (acc, obj) { 
-            return acc+obj['90+ goals'] 
+            return acc+parseInt(obj['90+ goals']) 
         }, 0);
         const fst_half_goals= data.reduce(function (acc, obj) { 
-            return acc+obj['1st_half goals'] 
+            return acc+parseInt(obj['1st_half goals']) 
         }, 0);
         const away_wins= data.reduce(function (acc, obj) { 
             const if_away_won=(parseInt(obj['away_goals'])>parseInt(obj['home_goals']))?1:0
@@ -75,12 +76,12 @@ function General({data, monthOptions}){
             frty_6_to_60_clnsht,sxty_1_to_75_clnsht,seventy_6_to_90_clnsht
         }=data.reduce(function (acc, obj) { 
             // console.log('min is'+acc.sixty_1_to_75+' '+obj['min 61-75 goals'])
-            acc.one_to_15_clnsht+=(parseInt(obj['min 1-15 home goals'])===0?1:0)+(parseInt(obj['min 1-15 away goals'])===0?1:0)
-            acc.sixtn_to_30_clnsht+=(parseInt(obj['min 16-30 home goals'])===0?1:0)+(parseInt(obj['min 16-30 away goals'])===0?1:0)
-            acc.thrty_1_to_45_clnsht+=(parseInt(obj['min 31-45+ home goals'])===0?1:0)+(parseInt(obj['min 31-45+ away goals'])===0?1:0)
-            acc.frty_6_to_60_clnsht+=(parseInt(obj['min 46-60 home goals'])===0?1:0)+(parseInt(obj['min 46-60 away goals'])===0?1:0)
-            acc.sxty_1_to_75_clnsht+=(parseInt(obj['min 61-75 home goals'])===0?1:0)+(parseInt(obj['min 61-75 away goals'])===0?1:0)
-            acc.seventy_6_to_90_clnsht+=(parseInt(obj['min 76-90+ home goals'])===0?1:0)+(parseInt(obj['min 76-90+ away goals'])===0?1:0)
+            acc.one_to_15_clnsht+=(parseInt(obj['min 1-15 home goals'])==0?1:0)+(parseInt(obj['min 1-15 away goals'])==0?1:0)
+            acc.sixtn_to_30_clnsht+=(parseInt(obj['min 16-30 home goals'])==0?1:0)+(parseInt(obj['min 16-30 away goals'])==0?1:0)
+            acc.thrty_1_to_45_clnsht+=(parseInt(obj['min 31-45+ home goals'])==0?1:0)+(parseInt(obj['min 31-45+ away goals'])==0?1:0)
+            acc.frty_6_to_60_clnsht+=(parseInt(obj['min 46-60 home goals'])==0?1:0)+(parseInt(obj['min 46-60 away goals'])==0?1:0)
+            acc.sxty_1_to_75_clnsht+=(parseInt(obj['min 61-75 home goals'])==0?1:0)+(parseInt(obj['min 61-75 away goals'])==0?1:0)
+            acc.seventy_6_to_90_clnsht+=(parseInt(obj['min 76-90+ home goals'])==0?1:0)+(parseInt(obj['min 76-90+ away goals'])==0?1:0)
             return acc
         }, {
             one_to_15_clnsht:0,
@@ -102,7 +103,7 @@ function General({data, monthOptions}){
             
             const {first_half_goals, away_wins}=matches_on_selected_month.reduce(function (acc, obj) {
                 acc.away_wins+=(parseInt(obj['away_goals'])>parseInt(obj['home_goals']))?1:0
-                acc.first_half_goals+=obj["1st_half goals"]
+                acc.first_half_goals+=parseInt(obj["1st_half goals"])
                 return acc
             },{away_wins:0, first_half_goals:0})
             first_half_goals_agg.push(first_half_goals)
@@ -116,20 +117,20 @@ function General({data, monthOptions}){
         let teamsGoals=[]
         for (let index = 0; index < teams.length; index++) {
             const team = teams[index];
-            const matches_with_selected_team=data.filter(({home_team, away_team})=>home_team === team || away_team===team)
+            const matches_with_selected_team=data.filter(({home_team, away_team})=>home_team == team || away_team==team)
             
             const {total_goals,total_first_half_goals_conceded,total_cleansheets, total_stoppage_goals,total_goals_conceded,stoppage_goals_conceded,total_first_half_goals}=matches_with_selected_team.reduce(function (acc, obj) {
-                acc.total_goals+= obj['home_team']===team?obj['home_goals']:obj['away_team']===team?obj['away_goals']:{}
-                acc.total_stoppage_goals+= obj['home_team']===team?obj['stoppage_time home goals']:obj['away_team']===team?obj['stoppage_time away goals']:{}
-                acc.total_goals_conceded+= obj['home_team']===team?obj['away_goals']:obj['away_team']===team?obj['home_goals']:{}
-                acc.total_first_half_goals+= obj['home_team']===team?obj["1st_half home goals"]:obj['away_team']===team?obj['1st_half away goals']:{} //i used bracket so i can get an error when aggregating
-                acc.total_first_half_goals_conceded+=obj['home_team']===team?obj["1st_half away goals"]:obj['away_team']===team?obj['1st_half home goals']:{}
-                acc.stoppage_goals_conceded+= obj['home_team']===team?obj['stoppage_time away goals']:obj['away_team']===team?obj['stoppage_time home goals']:{}
-                if(obj['home_team'] ===team && obj['away_goals']===0){
+                acc.total_goals+= obj['home_team']==team?parseInt(obj['home_goals']):obj['away_team']==team?parseInt(obj['away_goals']):{}
+                acc.total_stoppage_goals+= obj['home_team']==team?parseInt(obj['stoppage_time home goals']):obj['away_team']==team?parseInt(obj['stoppage_time away goals']):{}
+                acc.total_goals_conceded+= obj['home_team']==team?parseInt(obj['away_goals']):obj['away_team']==team?parseInt(obj['home_goals']):{}
+                acc.total_first_half_goals+= obj['home_team']==team?parseInt(obj["1st_half home goals"]):obj['away_team']==team?parseInt(obj['1st_half away goals']):{} //i used bracket so i can get an error when aggregating
+                acc.total_first_half_goals_conceded+=obj['home_team']==team?parseInt(obj["1st_half away goals"]):obj['away_team']==team?parseInt(obj['1st_half home goals']):{}
+                acc.stoppage_goals_conceded+= obj['home_team']==team?parseInt(obj['stoppage_time away goals']):obj['away_team']==team?parseInt(obj['stoppage_time home goals']):{}
+                if(obj['home_team'] ==team && obj['away_goals']==0){
                     // consolelog(obj['home_team']+ ' vs '+obj['away_team'])
                     acc.total_cleansheets+=1
                 }
-                if(obj['away_team'] ===team && obj['home_goals']===0){
+                if(obj['away_team'] ==team && obj['home_goals']==0){
                     acc.total_cleansheets+=1
                     // consolelog(obj['home_team']+ ' vs '+obj['away_team'])
 
@@ -152,12 +153,12 @@ function General({data, monthOptions}){
         const refereeStats=[]
         for (let index = 0; index < referees.length; index++) {
             const ref = referees[index];
-            const matches_with_selected_referee=data.filter(({referee})=>referee===ref)
+            const matches_with_selected_referee=data.filter(({referee})=>referee==ref)
             
             const {ref_total_goals,  ref_total_cleansheets, ref_total_points}=matches_with_selected_referee.reduce(function (acc, obj) {
-                acc.ref_total_goals+= obj['total_goals']
-                acc.ref_total_cleansheets+= parseInt(obj['total_goals'])===0?1:0
-                acc.ref_total_points+= obj.home_goals!==obj.away_goals?3:1
+                acc.ref_total_goals+= parseInt(obj['total_goals'])
+                acc.ref_total_cleansheets+= parseInt(obj['total_goals'])==0?1:0
+                acc.ref_total_points+= obj.home_goals!=obj.away_goals?3:1
                 return acc
             },{
                 ref_total_goals:0, ref_total_cleansheets:0,ref_total_points:0
@@ -179,32 +180,32 @@ function General({data, monthOptions}){
         const stadiumStats=[]
         for (let index = 0; index < stadiums.length; index++) {
             const stad = stadiums[index];
-            const matches_with_selected_referee=data.filter(({stadium})=>stadium===stad)
+            const matches_with_selected_referee=data.filter(({stadium})=>stadium==stad)
             
             const {stadium_total_goals, stadium_total_home_goals,stadium_highest_scoreline}=matches_with_selected_referee.reduce(function (acc, obj) {
-                acc.stadium_total_goals+= obj['total_goals']
-                acc.stadium_total_home_goals+= obj['home_goals']
+                acc.stadium_total_goals+= parseInt(obj['total_goals'])
+                acc.stadium_total_home_goals+= parseInt(obj['home_goals'])
                 if(acc.stadium_highest_scoreline.length){
-                    if(acc.stadium_highest_scoreline[0].total_goals===obj.total_goals){
+                    if(acc.stadium_highest_scoreline[0].total_goals==obj.total_goals){
                         acc.stadium_highest_scoreline.push({
-                            home_goals:obj['home_goals'], away_goals:obj['away_goals'],
+                            home_goals:+obj['home_goals'], away_goals:+obj['away_goals'],
                             home_team:obj['home_team'], away_team:obj['away_team'],
-                            total_goals:obj.total_goals, score_line:obj.score_line
+                            total_goals:+obj.total_goals, score_line:obj.score_line
                         })
                     }
                     else if(acc.stadium_highest_scoreline[0].total_goals<obj.total_goals){
                         acc.stadium_highest_scoreline=[{
-                            home_goals:obj['home_goals'], away_goals:obj['away_goals'],
+                            home_goals:+obj['home_goals'], away_goals:+obj['away_goals'],
                             home_team:obj['home_team'], away_team:obj['away_team'],
-                            total_goals:obj.total_goals, score_line:obj.score_line
+                            total_goals:+obj.total_goals, score_line:obj.score_line
                         }] 
                     }
                 }
                 else{
                     acc.stadium_highest_scoreline=[{
-                        home_goals:obj['home_goals'], away_goals:obj['away_goals'],
+                        home_goals:+obj['home_goals'], away_goals:+obj['away_goals'],
                         home_team:obj['home_team'], away_team:obj['away_team'],
-                        total_goals:obj.total_goals
+                        total_goals:+obj.total_goals
                     }]
                 }
                 return acc
@@ -251,7 +252,7 @@ function General({data, monthOptions}){
         frty_6_to_60_clnsht,sxty_1_to_75_clnsht,seventy_6_to_90_clnsht,
         ...rest
     } = useMemo(() => updateGeneralOptions(data), [data]);
-
+    consolelog({season_Data:season_data})
     return (
         <section>
             <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
@@ -336,7 +337,14 @@ function General({data, monthOptions}){
                         {rest?.teamsGoals?.sort((a,b)=>b.total_goals-a.total_goals)?.slice(0,4)?.map((({team, total_goals,total_first_half_goals, stoppage_goals,total_stoppage_goals},ind)=>
                             <div key={ind} className="flex items-center justify-between gap-x-3">
                                 <div className="flex items-center gap-x-3">
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-10 rounded-md'}/> 
+                                    <ImageContainer  
+                                        onError={({ currentTarget }) => {
+                                            currentTarget.onerror = null; // prevents looping
+                                            currentTarget.src='/images/no-club-crest.png';
+                                        }}
+                                        src={'/images/'+season_data?.league?.replace(' ', '').toLowerCase()+'/teams/'+team.toLowerCase().replace(' ','')+'.png'} 
+                                        className={'w-10 h-10 rounded-md'}
+                                        /> 
                                     <div>
                                         <p className="text-sm font-black mb-[4px]">{team}</p>
                                         <div className="w-[330px]">
@@ -365,7 +373,14 @@ function General({data, monthOptions}){
                         {rest?.teamsGoals?.sort((a,b)=>a.total_goals_conceded-b.total_goals_conceded)?.slice(0,4)?.map((({team, total_goals_conceded, stoppage_goals,total_stoppage_goals, total_first_half_goals_conceded,total_cleansheets},ind)=>
                             <div key={ind} className="flex items-center justify-between gap-x-3">
                                 <div className="flex items-center gap-x-3">
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-10 rounded-md'}/> 
+                                    <ImageContainer 
+                                        onError={({ currentTarget }) => {
+                                            currentTarget.onerror = null; // prevents looping
+                                            currentTarget.src='/images/no-club-crest.png';
+                                        }}
+                                        src={'/images/'+season_data?.league?.replace(' ', '').toLowerCase()+'/teams/'+team.toLowerCase().replace(' ','')+'.png'} 
+                                        className={'w-10 h-10 rounded-md'}
+                                    /> 
                                     <div>
                                         <p className="text-sm font-black mb-[4px]">{team}</p>
                                         <div className="w-[330px]">
@@ -404,7 +419,7 @@ function General({data, monthOptions}){
                             ({ref,ref_total_goal_ratio,ref_total_goals, ref_total_games,ref_total_cleansheets,ref_total_points},ind)=>
                             <div key={ind} className="flex items-center justify-between gap-x-3">
                                 <div className="flex items-center gap-x-3">
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-10 rounded-md'}/> 
+                                    <ImageContainer src={'/images/no-person.png'} className={'w-10 h-10 rounded-md'}/> 
                                     <div>
                                         <p className="text-sm font-black mb-[4px]">{ref}</p>
                                         <span className="flex items-center text-xs font-medium">
@@ -427,7 +442,7 @@ function General({data, monthOptions}){
                             (({stadium_total_goals,stadium_total_home_goals,stadium_highest_scoreline,stad,team},ind)=>
                             <div key={ind} className="flex items-center justify-between gap-x-3">
                                 <div className="flex items-center gap-x-3"> 
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-10 rounded-md'}/> 
+                                    <ImageContainer src={'/images/epl/teams/arsenal.png'} className={'w-10 h-10 rounded-md'}/> 
                                     <div>
                                         <p className="text-sm font-black mb-[4px]">{stad}</p>
                                         <div className="">
@@ -441,7 +456,7 @@ function General({data, monthOptions}){
                                                             if(i>1){
                                                               comma="+"  
                                                             }
-                                                            else if(i+1===stadium_highest_scoreline.length){
+                                                            else if(i+1==stadium_highest_scoreline.length){
                                                                 comma=''
                                                             }
 
@@ -471,7 +486,7 @@ function General({data, monthOptions}){
     )
 }
 
-function Goals({data, monthOptions}){
+function Goals({data, monthOptions, season_data}){
     const stringWithNumbers = (x)=>{
         return x+''.split('').filter(char => !isNaN(char)).join(''); 
     }
@@ -488,7 +503,7 @@ function Goals({data, monthOptions}){
         
         for (let index = 0; index < data.length; index++) {
             const match = data[index];
-            const goal_margin=Math.abs(match.home_goals-match.away_goals)
+            const goal_margin=Math.abs(+match.home_goals- +match.away_goals)
             if(goal_margin_threshold<goal_margin){
                 goal_margin_threshold=goal_margin
                 goal_margin_games=[{
@@ -496,7 +511,7 @@ function Goals({data, monthOptions}){
                     ...match
                 }]
             }
-            else if(goal_margin_threshold===goal_margin){
+            else if(goal_margin_threshold==goal_margin){
                 goal_margin_games.push({
                     goal_margin,
                     ...match
@@ -511,12 +526,12 @@ function Goals({data, monthOptions}){
 
         for (let index = 0; index < data.length; index++) {
             const match = data[index];
-            if(goal_scoring_threshold<match.total_goals){
+            if(goal_scoring_threshold<  +match.total_goals){
                 
-                goal_scoring_threshold=match.total_goals
+                goal_scoring_threshold= +match.total_goals
                 goal_scoring_games=[{...match}]
             }
-            else if(goal_scoring_threshold===match.total_goals){
+            else if(goal_scoring_threshold== +match.total_goals){
                 // const findTeam=goal_scoring_games.find(({home_team, away_team})=>home_team)
                 goal_scoring_games.push({...match})
             }
@@ -534,7 +549,7 @@ function Goals({data, monthOptions}){
                 const month = monthOptions[index2];
                 const matches_in_selected_month= data.filter(({match_date})=>match_date.includes(month))
                 const stats=matches_in_selected_month.reduce(function (acc, obj) { 
-                    acc.total_goal_scored+=obj['min '+time+' goals']
+                    acc.total_goal_scored+= parseInt(obj['min '+time+' goals'])
                     return acc
                 },{
                     month,time,
@@ -551,7 +566,7 @@ function Goals({data, monthOptions}){
 
 
         
-    // const matches_with_gmwk=data.filter(({game_week})=>game_week===index+1)
+    // const matches_with_gmwk=data.filter(({game_week})=>game_week==index+1)
     // const gmwksXintervals_goals=matches_with_gmwk.reduce(function (acc, obj) { 
     //     for (let time_index = 0; time_index < intervals; time_index++) {
     //         let time= intervals[time_index]
@@ -561,7 +576,7 @@ function Goals({data, monthOptions}){
     // },{
     //    ...intervals.reduce((a, v) => ({ ...a, [v]: 0}), {}) 
     // })
-    // const matches_with_interval=data.filter(({game_week})=>game_week===index+1)
+    // const matches_with_interval=data.filter(({game_week})=>game_week==index+1)
 
         //HEAT MAP OF GAMEWEEKS AGAINST INTERVALS 
         const max_gmwk= Math.max(...data.map(({game_week})=>parseInt(game_week)))
@@ -576,8 +591,8 @@ function Goals({data, monthOptions}){
             
             for (let wk_index = 0; wk_index < max_gmwk; wk_index++) {
                 let wk= gameweeks[wk_index]
-                const matches_with_gmwk=data.filter(({game_week})=>game_week===wk)
-                const goals_for_that_week= matches_with_gmwk.reduce((a, v) => (a+=v['min '+time+' goals']), 0)
+                const matches_with_gmwk=data.filter(({game_week})=>game_week==wk)
+                const goals_for_that_week= matches_with_gmwk.reduce((a, v) => (a+=parseInt(v['min '+time+' goals'])), 0)
                 
                 total_interval_goals+=goals_for_that_week
                 every_goals_count.push(goals_for_that_week)
@@ -595,13 +610,13 @@ function Goals({data, monthOptions}){
         const firstHalfGoalsOverMonths=[]
         for (let index = 0; index < monthOptions.length; index++) {
             const month = monthOptions[index];
-            const goals_in_first_half_for_month= monthsWithIntervals[0][index].total_goal_scored+monthsWithIntervals[1][index].total_goal_scored+monthsWithIntervals[2][index].total_goal_scored
+            const goals_in_first_half_for_month= parseInt(monthsWithIntervals[0][index].total_goal_scored)+parseInt(monthsWithIntervals[1][index].total_goal_scored)+parseInt(monthsWithIntervals[2][index].total_goal_scored)
             firstHalfGoalsOverMonths.push(goals_in_first_half_for_month)
         }
         const secHalfGoalsOverMonths=[]
         for (let index = 0; index < monthOptions.length; index++) {
             const month = monthOptions[index];
-            const goals_in_sec_half_for_month= monthsWithIntervals[3][index].total_goal_scored+monthsWithIntervals[4][index].total_goal_scored+monthsWithIntervals[5][index].total_goal_scored
+            const goals_in_sec_half_for_month= parseInt(monthsWithIntervals[3][index].total_goal_scored)+parseInt(monthsWithIntervals[4][index].total_goal_scored)+parseInt(monthsWithIntervals[5][index].total_goal_scored)
             secHalfGoalsOverMonths.push(goals_in_sec_half_for_month)
         }
 
@@ -611,8 +626,8 @@ function Goals({data, monthOptions}){
             const month = monthOptions[i];
             const matches_in_selected_month= data.filter(({match_date})=>match_date.includes(month))
             const stats=matches_in_selected_month.reduce(function (acc, obj) { 
-                acc.total_home_goal_scored+=obj.home_goals
-                acc.total_away_goal_scored+=obj.away_goals
+                acc.total_home_goal_scored+=parseInt(obj.home_goals)
+                acc.total_away_goal_scored+=parseInt(obj.away_goals)
                 return acc
             },{
                 total_home_goal_scored:0,total_away_goal_scored:0
@@ -634,7 +649,7 @@ function Goals({data, monthOptions}){
             const matches_with_selected_month=data.filter(({match_date})=>match_date.includes(month))
 
             const stats=matches_with_selected_month.reduce(function (acc, obj) { 
-                acc.total_goal_scored+=obj.total_goals
+                acc.total_goal_scored+=parseInt(obj.total_goals)
                 acc.total_matches+=1
                 return acc
             }, {
@@ -645,7 +660,7 @@ function Goals({data, monthOptions}){
             if(stats.total_goal_scored>highest_scoring_month.total_goal_scored){
                 highest_scoring_month={...stats, month}
             }
-            else if (stats.total_goal_scored===highest_scoring_month.total_goal_scored){
+            else if (stats.total_goal_scored==highest_scoring_month.total_goal_scored){
                 highest_scoring_month.not_alone+=1
             }
             monthsGoals.push(stats)            
@@ -655,9 +670,9 @@ function Goals({data, monthOptions}){
         //piechart of goals in 30min
         
         const min30interval_goals=data.reduce(function (acc, obj) { 
-            acc[0]+= obj["min 1-15 goals"]+obj["min 16-30 goals"]
-            acc[1]+=obj["min 31-45+ goals"]+obj["min 46-60 goals"]
-            acc[2]+=obj["min 61-75 goals"]+obj["min 76-90+ goals"]
+            acc[0]+= +obj["min 1-15 goals"]+(+obj["min 16-30 goals"])
+            acc[1]+=+obj["min 31-45+ goals"]+(+obj["min 46-60 goals"])
+            acc[2]+=+obj["min 61-75 goals"]+(+obj["min 76-90+ goals"])
             return acc
         },[0,0,0]);
 
@@ -669,18 +684,18 @@ function Goals({data, monthOptions}){
         const teamsPoints=[]
         for (let index = 0; index < teams.length; index++) {
             const team = teams[index];
-            const matches_with_selected_team=data.filter(({home_team, away_team})=>home_team === team || away_team===team)
+            const matches_with_selected_team=data.filter(({home_team, away_team})=>home_team == team || away_team==team)
             
             const acc_points=matches_with_selected_team.reduce(function (acc, obj,index) {
                 let team_score= 0
                 let opp_score=0
-                if(obj["home_team"]===team){
-                    team_score,opp_score= obj["home_goals"],obj["away_goals"]
+                if(obj["home_team"]==team){
+                    team_score,opp_score= +obj["home_goals"],+obj["away_goals"]
                 }
-                if(obj["away_team"]===team){
-                    team_score,opp_score= obj["away_goals"],obj["home_goals"]
+                if(obj["away_team"]==team){
+                    team_score,opp_score= +obj["away_goals"],+obj["home_goals"]
                 }
-                let point=(team_score>opp_score?3:team_score===opp_score?1:0)
+                let point=(team_score>opp_score?3:team_score==opp_score?1:0)
                 acc.acc_points=acc.acc_points+point,
                 acc.matches.push({
                     gamemonth:monthOptions.indexOf(obj['match_date'].split(' ')[1])+ parseFloat('0.'+index),point,
@@ -901,15 +916,15 @@ function Goals({data, monthOptions}){
                                                 <td 
                                                 style={{
                                                     backgroundColor:
-                                                    rounded_no_of_goals_to_900===100?"rgb(220 252 231)":
-                                                    rounded_no_of_goals_to_900===200?"rgb(187 247 208)":
-                                                    rounded_no_of_goals_to_900===300?"rgb(134 239 172)":
-                                                    rounded_no_of_goals_to_900===400?"rgb(74 222 128)":
-                                                    rounded_no_of_goals_to_900===500?"rgb(34 197 94)":
-                                                    rounded_no_of_goals_to_900===600?"rgb(22 163 74)":
-                                                    rounded_no_of_goals_to_900===700?"rgb(21 128 61)":
-                                                    rounded_no_of_goals_to_900===800?"rgb(22 101 52)":
-                                                    rounded_no_of_goals_to_900===900?"rgb(20 83 45)":
+                                                    rounded_no_of_goals_to_900==100?"rgb(220 252 231)":
+                                                    rounded_no_of_goals_to_900==200?"rgb(187 247 208)":
+                                                    rounded_no_of_goals_to_900==300?"rgb(134 239 172)":
+                                                    rounded_no_of_goals_to_900==400?"rgb(74 222 128)":
+                                                    rounded_no_of_goals_to_900==500?"rgb(34 197 94)":
+                                                    rounded_no_of_goals_to_900==600?"rgb(22 163 74)":
+                                                    rounded_no_of_goals_to_900==700?"rgb(21 128 61)":
+                                                    rounded_no_of_goals_to_900==800?"rgb(22 101 52)":
+                                                    rounded_no_of_goals_to_900==900?"rgb(20 83 45)":
                                                     "#ffffff"
                                                 }}
                                                 className={`text-sm border border-slate-300 text-center h-12 text-white`} 
@@ -960,7 +975,7 @@ function Goals({data, monthOptions}){
                                             ({
                                                 label:side,
                                                 data:goal_stats.monthHxA.map(
-                                                    (stats)=>side==="Home Goals"?stats.total_home_goal_scored:stats.total_away_goal_scored
+                                                    (stats)=>side=="Home Goals"?stats.total_home_goal_scored:stats.total_away_goal_scored
                                                 )
                                             })
                                         )   
@@ -975,778 +990,23 @@ function Goals({data, monthOptions}){
 }
 
 function Cleansheets({data, monthOptions}){
-    const updateCleansheetOptions=(data)=>{
-        if(!data) return {}
-        const total_cleansheet=data.reduce(function (acc, obj) { 
-            const isClnsheet=!obj.total_goals?0:1
-            return acc + isClnsheet; 
-        }, 0);
-        const tt_games_given=data.length
-
-        //highest month cleansheet
-        const monthCleansheets=[]
-        for (let index = 0; index < monthOptions.length; index++) {
-            const month = monthOptions[index];
-            const matches_with_selected_month=data.filter(({match_date})=>match_date.includes(month))
-
-            const stats=matches_with_selected_month.reduce(function (acc, obj) { 
-                acc.total_cleansheets=(obj.total_goals===0?1:0)
-                acc.total_matches+=1
-                return acc
-            }, {
-                total_cleansheets:0,
-                total_matches:0
-            });
-            monthCleansheets.push(stats)            
-        }
-        //highest gameweek cleansheet
-        const gmwks=[...Array(38).keys()].map(gmwk=>gmwk+1)
-        const gmwkCleansheets=[]
-        for (let index = 0; index < gmwks.length; index++) {
-            const month = monthOptions[index];
-            const matches_with_selected_month=data.filter(({match_date})=>match_date.includes(month))
-
-            const stats=matches_with_selected_month.reduce(function (acc, obj) { 
-                acc.total_cleansheets=(obj.total_goals===0?1:0)
-                acc.total_matches+=1
-                return acc
-            }, {
-                total_cleansheets:0,
-                total_matches:0
-            });
-            gmwkCleansheets.push(stats)            
-        }
-        //highest team cleansheet
-        const teamsNoDu= data.map((({home_team})=>home_team))
-        const teams = [... new Set(teamsNoDu)];
-
-        const teamCleansheets=[] 
-        for (let index = 0; index < teams.length; index++) {
-            const team = teams[index];
-            const matches_with_selected_team=data.filter(({home_team, away_team})=>home_team === team || away_team===team)
-            
-            const acc_clnshts_team=matches_with_selected_team.reduce(function (acc, obj,index) {
-                if(obj["home_team"]===team && obj['away_goals']===0){
-                    acc.acc_clnshts_home+=1
-                    acc.acc_clnshts+=1
-                }
-                if(obj["away_team"]===team && obj['home_goals']===0){
-                    acc.acc_clnshts_home+=1
-                    acc.acc_clnshts+=1
-                }
-                return acc
-            },{
-                acc_clnshts:0,
-                acc_clnshts_home:0
-            })
-
-            teamCleansheets.push({
-                team,...acc_clnshts_team
-            })           
-        }
-        //goal scored frequency with opponents
-        //you can code this out
-
-        
-        return {
-            total_cleansheet, tt_games_given, monthCleansheets,gmwkCleansheets,teamCleansheets
-        }
-    }
-    const clnsht_stats = useMemo(() => updateGoalOptions(data), [data]);
+    
+    // const clnsht_stats = useMemo(() => updateGoalOptions(data), [data]);
 
 
-    return (
-        <section>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Goal Scored</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{total_goal_scored || '0'}</p>
-                            <p className="text-md">{Math.round((total_goal_scored/tt_games_given)*100)/100} <span className="opacity-75 text-xs">goals per game</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Cleansheets Kept</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{tt_cleansheet_kept}</p>
-                            <p className="text-md">{Math.round((tt_cleansheet_kept/tt_games_given)*100)/100} <span className="opacity-75 text-xs">sheet{'(s)'} ratio</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Total Goalless Period</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{parseInt(tt_goalless_min/60)+'hrs '+ ((tt_goalless_min/60+'').split('.')[1] || '0')+ 'min'}</p>
-                            <p className="text-md">{tt_goalless_draws} <span className="opacity-75 text-xs">goalless games</span></p>
-                        </div>
-
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Stoppage Time Goals</p>
-                            <p className="font-semibold text-xl mb-2">{stoppage_goals}</p>
-                            <div className="h-[20px]">
-                                <p className="text-md">{end_time_stoppage_goals} <span className="opacity-75 text-xs">90+ goals</span></p>
-                            </div>
-                        </div>
-                        <div  className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">1rst half goals</p>
-                            <p className="font-semibold text-xl mb-2">
-
-                                {Math.round(((fst_half_goals/total_goal_scored)*100)*100)/100}%
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.first_half_goals_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Away Wins</p>
-                            <p className="font-semibold text-xl mb-2">
-                                {Math.round(((away_wins/tt_games_given)*100)*100)/100}%
-
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.away_wins_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                </div>
-                <div className="border border-2 bg-white rounded-md pt-5 px-2">
-                    <h6 className="text-sm text-center font-medium mb-2">Total Number of Goals and Clean Sheets Recorded Every 15 Minutes Interval</h6>
-                    <MultipleBarChart customlabel={["1-15", "16-30", "31-45+","46-60", "61-75","76-90+"]} 
-                        data={[one_to_15,sixtn_to_30,thrty_1_to_45,frty_6_to_60,sxty_1_to_75,seventy_6_to_90]}
-                        data2={[one_to_15_clnsht,sixtn_to_30_clnsht,thrty_1_to_45_clnsht,frty_6_to_60_clnsht,sxty_1_to_75_clnsht,seventy_6_to_90_clnsht]}
-                        datalabel={{
-                            label:"Goals",backgroundColor:"#90EE90",
-                            borderColor:"#2E8B57"
-                        }}
-                        data2label={{
-                            label:"Cleansheets",backgroundColor:"#CCCCCC",
-                            borderColor:"#A9A9A9"
-                        }}
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div>
-                    <p>Best Attacking Teams</p>
-                    <div>
-                        {rest?.sort_team_goals?.slice(0,3)?.map((({team, total_goals, stoppage_goals},ind)=>
-                            <div key={ind}>
-                                <div>
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-7 rounded-md'}/> 
-                                    <div>
-                                        <p>{team}</p>
-                                        <div className="max-w-[350px]">
-
-                                        </div>
-                                        <div>
-                                            <p>{stoppage_goals+'% in stoppage time'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>{total_goals+' goals'}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div>
-
-                </div>
-            </div>
-        </section>
-    )
+    return null
+   
 }
 
 function Match({data, monthOptions}){
-    const updateMatchOptions=(data)=>{
-        if(!data) return {}
-        //highest goal margin and 
-        let goal_margin_games=[]
-        let goal_margin_threshold=0
-        
-        for (let index = 0; index < data.length; index++) {
-            const match = data[index];
-            const goal_margin=Math.abs(match.home_goals-match.away_goals)
-            if(goal_margin_threshold<goal_margin){
-                goal_margin_threshold=goal_margin
-                goal_margin_games=[{goal_margin,...match}]
-            }
-            if(goal_margin_threshold===goal_margin){
-                goal_margin_games.push({goal_margin, ...match})
-            }
-            
-        }
-
-        //most goals and goals in half
-        let goal_scoring_games=[]
-        let goal_scoring_threshold=0
-
-        let goal_scoring_half_games=[]
-        let goal_scoring_half_threshold=0
-        
-        for (let index = 0; index < data.length; index++) {
-            const match = data[index];
-            if(goal_scoring_threshold<match.total_goals){
-                goal_scoring_threshold=match.total_goals
-                goal_scoring_games=[{...match}]
-            }
-            if(goal_scoring_threshold===match.total_goals){
-                goal_scoring_games.push({...match})
-            }
-            if(goal_scoring_half_threshold<match['1st_half goals']){
-                goal_scoring_threshold=match.total_goals
-                goal_scoring_half_games=[{...match}]
-            }
-            if(goal_scoring_half_threshold<match['2nd_half goals']){
-                goal_scoring_threshold=match.total_goals
-                goal_scoring_half_games=[{...match}]
-            }
-            if(goal_scoring_half_threshold===match['1st_half goals']){
-                goal_scoring_half_games.push({...match})
-            }
-            if(goal_scoring_half_threshold===match['2nd_half goals']){
-                goal_scoring_half_games.push({...match})
-            }
-        }
-        //win draw lose percentage
-        const match_outcomes=data.reduce(function (acc, obj) { 
-            if(obj.home_goals<obj.away_goals){
-                acc.total_away_wins+=1
-            }
-            else if(obj.home_goals>obj.away_goals){
-                acc.total_home_wins+=1
-            }
-            else{
-                acc.total_draws+=1
-            }
-            return acc
-        }, {
-            total_away_wins:0,
-            total_draws:0,
-            total_home_wins:0,
-            // total_games:0
-        });
-        // heat map for team vs team showing match outcome
-        // hardcode this
-        
-        return {
-            goal_scoring_games,goal_scoring_threshold,goal_scoring_half_games,
-            goal_scoring_half_threshold,
-            total_cleansheet, tt_games_given, ...match_outcomes
-        }
-    }
-    const clnsht_stats = useMemo(() => updateGoalOptions(data), [data]);
-
-
-    return (
-        <section>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Goal Scored</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{total_goal_scored || '0'}</p>
-                            <p className="text-md">{Math.round((total_goal_scored/tt_games_given)*100)/100} <span className="opacity-75 text-xs">goals per game</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Cleansheets Kept</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{tt_cleansheet_kept}</p>
-                            <p className="text-md">{Math.round((tt_cleansheet_kept/tt_games_given)*100)/100} <span className="opacity-75 text-xs">sheet{'(s)'} ratio</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Total Goalless Period</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{parseInt(tt_goalless_min/60)+'hrs '+ ((tt_goalless_min/60+'').split('.')[1] || '0')+ 'min'}</p>
-                            <p className="text-md">{tt_goalless_draws} <span className="opacity-75 text-xs">goalless games</span></p>
-                        </div>
-
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Stoppage Time Goals</p>
-                            <p className="font-semibold text-xl mb-2">{stoppage_goals}</p>
-                            <div className="h-[20px]">
-                                <p className="text-md">{end_time_stoppage_goals} <span className="opacity-75 text-xs">90+ goals</span></p>
-                            </div>
-                        </div>
-                        <div  className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">1rst half goals</p>
-                            <p className="font-semibold text-xl mb-2">
-
-                                {Math.round(((fst_half_goals/total_goal_scored)*100)*100)/100}%
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.first_half_goals_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Away Wins</p>
-                            <p className="font-semibold text-xl mb-2">
-                                {Math.round(((away_wins/tt_games_given)*100)*100)/100}%
-
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.away_wins_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                </div>
-                <div className="border border-2 bg-white rounded-md pt-5 px-2">
-                    <h6 className="text-sm text-center font-medium mb-2">Total Number of Goals and Clean Sheets Recorded Every 15 Minutes Interval</h6>
-                    <MultipleBarChart customlabel={["1-15", "16-30", "31-45+","46-60", "61-75","76-90+"]} 
-                        data={[one_to_15,sixtn_to_30,thrty_1_to_45,frty_6_to_60,sxty_1_to_75,seventy_6_to_90]}
-                        data2={[one_to_15_clnsht,sixtn_to_30_clnsht,thrty_1_to_45_clnsht,frty_6_to_60_clnsht,sxty_1_to_75_clnsht,seventy_6_to_90_clnsht]}
-                        datalabel={{
-                            label:"Goals",backgroundColor:"#90EE90",
-                            borderColor:"#2E8B57"
-                        }}
-                        data2label={{
-                            label:"Cleansheets",backgroundColor:"#CCCCCC",
-                            borderColor:"#A9A9A9"
-                        }}
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div>
-                    <p>Best Attacking Teams</p>
-                    <div>
-                        {rest?.sort_team_goals?.slice(0,3)?.map((({team, total_goals, stoppage_goals},ind)=>
-                            <div key={ind}>
-                                <div>
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-7 rounded-md'}/> 
-                                    <div>
-                                        <p>{team}</p>
-                                        <div className="max-w-[350px]">
-
-                                        </div>
-                                        <div>
-                                            <p>{stoppage_goals+'% in stoppage time'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>{total_goals+' goals'}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div>
-
-                </div>
-            </div>
-        </section>
-    )
+    return null
 }
 
-function Team({data, monthOptions}){
-    const updateTeamOptions=(data)=>{
-        if(!data) return {}
-        //top teams
-        const teamsNoDu= data.map((({home_team})=>home_team))
-        const teams = [... new Set(teamsNoDu)];
-
-        const teamsGoalSummary=[]     
-        
-        for (let index = 0; index < teams.length; index++) {
-            const team = teams[index];
-            const matches_with_selected_team=data.filter(({home_team, away_team})=>home_team === team || away_team===team)
-            
-            const teams_summary=matches_with_selected_team.reduce(function (acc, obj) {
-                acc.total_goals+= obj['home_team']===team?obj['home_goals']:obj['away_team']===team?obj['away_goals']:{}
-                acc.stoppage_goals+= obj['home_team']===team?obj['stoppage_time home goals']:obj['away_team']===team?obj['stoppage_time away goals']:{}
-                acc.total_goals_conceded+= obj['home_team']===team?obj['away_goals']:obj['away_team']===team?obj['home_goals']:{}
-                acc.stoppage_goals_conceded+= obj['home_team']===team?obj['stoppage_time away goals']:obj['away_team']===team?obj['stoppage_time home goals']:{}
-                acc.ninety_goals_conceded+= obj['home_team']===team?obj['90+ away goals']:obj['away_team']===team?obj['90+ home goals']:0
-                return acc
-            },{
-                total_goals:0, total_stoppage_goals:0,total_goals_conceded:0,stoppage_goals_conceded:0,ninety_goals_conceded:0
-            })
-            teamsGoalSummary.push({
-                team, ...teams_summary
-            })
-        }
-        //highest scoring and defensive team per month
-        const team_stats_summary_monthly=[]
-        for (let index = 0; index < monthOptions.length; index++) {
-            const month = monthOptions[index];
-            const matches_in_selected_month= data.filter(({match_date})=>match_date.includes(month))
-        
-            const teams_stats=matches_in_selected_month.reduce(function (acc, obj) {
-                acc[obj['home_team']+' goals']+=obj.home_goals
-                acc[obj['away_team']+' goals']+=obj.away_goals
-
-                acc[obj['home_team']+' conceded']+=obj.away_goals
-                acc[obj['away_team']+' conceded']+=obj.home_goals
-                return acc
-            },{
-                ...teams.reduce((a, v) => ({ ...a, [v+' goals']: 0}), {}),
-                ...teams.reduce((a, v) => ({ ...a, [v+' conceded']: 0}), {}) 
-            })
-
-            team_stats_summary_monthly.push({
-                month, teams_stats
-            })
-        }
-
-        //teams score per month
-        const team_score_per_month=[]
-        // const team_label=[]
-        for (let index = 0; index < teams.length; index++) {
-            const team=teams[index]
-            const month_list=[]
-            for (let index = 0; index < team_stats_summary_monthly.length; index++) {
-                const month_summary=team_stats_summary_monthly[index]
-                month_list.push(month_summary.teams_stats[team+' goals'])
-            }    
-            team_score_per_month.push(month_list)
-            // team_label.push(team)
-        }
-        return {
-            teamsGoalSummary, team_stats_summary_monthly, team_score_per_month, teams
-        }
-    }
-    const team_stats = useMemo(() => updateTeamOptions(data), [data]);
-
-
-    return (
-        <section>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Goal Scored</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{total_goal_scored || '0'}</p>
-                            <p className="text-md">{Math.round((total_goal_scored/tt_games_given)*100)/100} <span className="opacity-75 text-xs">goals per game</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Cleansheets Kept</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{tt_cleansheet_kept}</p>
-                            <p className="text-md">{Math.round((tt_cleansheet_kept/tt_games_given)*100)/100} <span className="opacity-75 text-xs">sheet{'(s)'} ratio</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Total Goalless Period</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{parseInt(tt_goalless_min/60)+'hrs '+ ((tt_goalless_min/60+'').split('.')[1] || '0')+ 'min'}</p>
-                            <p className="text-md">{tt_goalless_draws} <span className="opacity-75 text-xs">goalless games</span></p>
-                        </div>
-
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Stoppage Time Goals</p>
-                            <p className="font-semibold text-xl mb-2">{stoppage_goals}</p>
-                            <div className="h-[20px]">
-                                <p className="text-md">{end_time_stoppage_goals} <span className="opacity-75 text-xs">90+ goals</span></p>
-                            </div>
-                        </div>
-                        <div  className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">1rst half goals</p>
-                            <p className="font-semibold text-xl mb-2">
-
-                                {Math.round(((fst_half_goals/total_goal_scored)*100)*100)/100}%
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.first_half_goals_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Away Wins</p>
-                            <p className="font-semibold text-xl mb-2">
-                                {Math.round(((away_wins/tt_games_given)*100)*100)/100}%
-
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.away_wins_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                </div>
-                <div className="border border-2 bg-white rounded-md pt-5 px-2">
-                    <h6 className="text-sm text-center font-medium mb-2">Total Number of Goals and Clean Sheets Recorded Every 15 Minutes Interval</h6>
-                    <MultipleBarChart customlabel={["1-15", "16-30", "31-45+","46-60", "61-75","76-90+"]} 
-                        data={[one_to_15,sixtn_to_30,thrty_1_to_45,frty_6_to_60,sxty_1_to_75,seventy_6_to_90]}
-                        data2={[one_to_15_clnsht,sixtn_to_30_clnsht,thrty_1_to_45_clnsht,frty_6_to_60_clnsht,sxty_1_to_75_clnsht,seventy_6_to_90_clnsht]}
-                        datalabel={{
-                            label:"Goals",backgroundColor:"#90EE90",
-                            borderColor:"#2E8B57"
-                        }}
-                        data2label={{
-                            label:"Cleansheets",backgroundColor:"#CCCCCC",
-                            borderColor:"#A9A9A9"
-                        }}
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div>
-                    <p>Best Attacking Teams</p>
-                    <div>
-                        {rest?.sort_team_goals?.slice(0,3)?.map((({team, total_goals, stoppage_goals},ind)=>
-                            <div key={ind}>
-                                <div>
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-7 rounded-md'}/> 
-                                    <div>
-                                        <p>{team}</p>
-                                        <div className="max-w-[350px]">
-
-                                        </div>
-                                        <div>
-                                            <p>{stoppage_goals+'% in stoppage time'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>{total_goals+' goals'}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div>
-
-                </div>
-            </div>
-        </section>
-    )
-}
-function Stadium({data, monthOptions}){
-    const updateTeamOptions=(data)=>{
-        if(!data) return {}
-        //top stadium with most goals and cleansheets
-        const stadiumNoDu= data.map((({stadium})=>stadium))
-        const stadiums = [... new Set(stadiumNoDu)];
-
-        const teamsStadSummary=[]     
-        
-        for (let index = 0; index < stadiums.length; index++) {
-            const stad = stadiums[index];
-            const matches_with_selected_stadium=data.filter(({stadium})=>stadium === stad)
-            
-            const stadium_performance=matches_with_selected_stadium.reduce(function (acc, obj) {
-                acc.total_goals+=obj.total_goals
-                acc.total_clnsht+=(obj.home_goals===0?1:0 || obj.away_goals===0?1:0)
-                acc.home_goals+=(obj.home_goals)
-                acc.away_goals+=(obj.away_goals)
-                acc.away_points+=(obj.away_goals===obj.home_goals?1:obj.away_goals>obj.home_goals?3:0)
-                // obj['home_team']===team?obj['home_goals']:obj['away_team']===team?obj['away_goals']:{}
-                // acc.stoppage_goals+= obj['home_team']===team?obj['stoppage_time home goals']:obj['away_team']===team?obj['stoppage_time away goals']:{}
-                // acc.total_goals_conceded+= obj['home_team']===team?obj['away_goals']:obj['away_team']===team?obj['home_goals']:{}
-                acc.stoppage_goals_conceded+= obj['stoppage_time goals']
-                acc.ninety_goals_conceded+= obj['90+ away goals']
-                return acc
-            },{
-                total_goals:0, total_stoppage_goals:0,total_goals_conceded:0,stoppage_goals_conceded:0,ninety_goals_conceded:0
-            })
-            teamsStadSummary.push({
-                stadium_performance
-            })
-        }
-        let goal_scoring_games=[]
-        let goal_scoring_threshold=0
-
-        
-        for (let index = 0; index < data.length; index++) {
-            const match = data[index];
-            if(goal_scoring_threshold<match.away_goals){
-                goal_scoring_threshold=match.away_goals
-                goal_scoring_games=[{...match}]
-            }
-            if(goal_scoring_threshold===match.away_goals){
-                goal_scoring_games.push({...match})
-            }
-            
-        }
-        const stadium_score_per_month=[]
-        
-        // const team_label=[]
-        for (let index = 0; index < stadiums.length; index++) {
-            const stad=stadiums[index]
-            const month_list=[]
-            const matches_with_selected_stad= data.filter(({stadium})=>stadium===stad)
-            for (let index = 0; index < monthOptions.length; index++) {
-                const month= monthOptions[index]
-                const matches_with_selected_month= matches_with_selected_stad.filter(({match_date})=>match_date.includes(month))
-                const total_goals= matches_with_selected_month.map(({total_goals})=>total_goals)
-                month_list.push(total_goals)
-            }    
-            stadium_score_per_month.push(month_list)
-        }
-
-        const away_scores={}
-        
-        // const team_label=[]
-        for (let index = 0; index < stadiums.length; index++) {
-            const stad=stadiums[index]
-            const away_score_list=[]
-            const matches_with_selected_stad= data.filter(({stadium})=>stadium===stad)
-            for (let index = 0; index < matches_with_selected_stad.length; index++) {
-                const match= matches_with_selected_stad[index]
-                const search_away_team=away_score_list.findIndex(({opp_team})=>opp_team===match['away_team'])
-                if(search_away_team!==-1){
-                    away_score_list[search_away_team].away_goals+=match.away_goals
-                }
-                else{
-                    away_score_list.push(
-                        {
-                            away_goals:match.away_goals, opp_team:match.away_team,
-                        }
-                    )
-                }
-            }    
-            away_scores[stad]={...away_score_list}
-        }
-
-        return {
-            away_scores, teamsStadSummary,goal_scoring_games, goal_scoring_threshold,stadium_score_per_month,away_scores
-        }
-    }
-    const stadium_stats = useMemo(() => updateTeamOptions(data), [data]);
-
-
-    return (
-        <section>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Goal Scored</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{total_goal_scored || '0'}</p>
-                            <p className="text-md">{Math.round((total_goal_scored/tt_games_given)*100)/100} <span className="opacity-75 text-xs">goals per game</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white ">
-                            <p className="text-sm mb-5">Cleansheets Kept</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{tt_cleansheet_kept}</p>
-                            <p className="text-md">{Math.round((tt_cleansheet_kept/tt_games_given)*100)/100} <span className="opacity-75 text-xs">sheet{'(s)'} ratio</span></p>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Total Goalless Period</p>
-                            
-                            <p className="font-semibold text-xl mb-2">{parseInt(tt_goalless_min/60)+'hrs '+ ((tt_goalless_min/60+'').split('.')[1] || '0')+ 'min'}</p>
-                            <p className="text-md">{tt_goalless_draws} <span className="opacity-75 text-xs">goalless games</span></p>
-                        </div>
-
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Stoppage Time Goals</p>
-                            <p className="font-semibold text-xl mb-2">{stoppage_goals}</p>
-                            <div className="h-[20px]">
-                                <p className="text-md">{end_time_stoppage_goals} <span className="opacity-75 text-xs">90+ goals</span></p>
-                            </div>
-                        </div>
-                        <div  className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">1rst half goals</p>
-                            <p className="font-semibold text-xl mb-2">
-
-                                {Math.round(((fst_half_goals/total_goal_scored)*100)*100)/100}%
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.first_half_goals_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                        <div className="rounded-xl shadow-lg px-3 py-8 bg-white">
-                            <p className="text-sm mb-5">Away Wins</p>
-                            <p className="font-semibold text-xl mb-2">
-                                {Math.round(((away_wins/tt_games_given)*100)*100)/100}%
-
-                            </p>
-                            <div className="h-[20px]">
-                                <LinePlot data={
-                                    {
-                                        labels: monthOptions,
-                                        values: rest.away_wins_agg
-                                      }
-                                }/>
-                            </div>
-                        </div>
-                </div>
-                <div className="border border-2 bg-white rounded-md pt-5 px-2">
-                    <h6 className="text-sm text-center font-medium mb-2">Total Number of Goals and Clean Sheets Recorded Every 15 Minutes Interval</h6>
-                    <MultipleBarChart customlabel={["1-15", "16-30", "31-45+","46-60", "61-75","76-90+"]} 
-                        data={[one_to_15,sixtn_to_30,thrty_1_to_45,frty_6_to_60,sxty_1_to_75,seventy_6_to_90]}
-                        data2={[one_to_15_clnsht,sixtn_to_30_clnsht,thrty_1_to_45_clnsht,frty_6_to_60_clnsht,sxty_1_to_75_clnsht,seventy_6_to_90_clnsht]}
-                        datalabel={{
-                            label:"Goals",backgroundColor:"#90EE90",
-                            borderColor:"#2E8B57"
-                        }}
-                        data2label={{
-                            label:"Cleansheets",backgroundColor:"#CCCCCC",
-                            borderColor:"#A9A9A9"
-                        }}
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-1 mb-5">
-                <div>
-                    <p>Best Attacking Teams</p>
-                    <div>
-                        {rest?.sort_team_goals?.slice(0,3)?.map((({team, total_goals, stoppage_goals},ind)=>
-                            <div key={ind}>
-                                <div>
-                                    <ImageContainer src={'/images/Arsenal_logo_PNG13.png'} className={'w-10 h-7 rounded-md'}/> 
-                                    <div>
-                                        <p>{team}</p>
-                                        <div className="max-w-[350px]">
-
-                                        </div>
-                                        <div>
-                                            <p>{stoppage_goals+'% in stoppage time'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>{total_goals+' goals'}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div>
-
-                </div>
-            </div>
-        </section>
-    )
-}
-
-export default function Chart({data, tab, monthOptions}){
-    const xdata = {
-        datasets: [
-          {
-            label: 'Mancity',
-            data: [{ x: 1.1, y: 10 }, { x: 1.2, y: 15 }, { x: 1.3, y: 8 }]
-          },
-          {
-            label: 'Arsenal',
-            data: [{ x: 5, y: 12 }, { x: 5.1, y: 18 }, { x: 5.2, y: 9 }]
-          }
-        ]
-      };
+export default function Chart({data, tab, monthOptions, season_data}){
+    console.log({Season_data:season_data})
     return(
         <>
-        {   tab==="general"?
+        {   tab=="general"?
                 
                 // <HeatmapChart data = {{
                 //     labels: ['January', 'February', 'March', 'April', 'May'],
@@ -1761,9 +1021,9 @@ export default function Chart({data, tab, monthOptions}){
                 //       borderWidth: 1,
                 //     }]
                 // }}/>:
-                <General data={data} monthOptions={monthOptions}/>:
-                tab==="goals"?
-                <Goals data={data} monthOptions={monthOptions}/>:
+                <General data={data} monthOptions={monthOptions} season_data={season_data}/>:
+                tab=="goals"?
+                <Goals data={data} monthOptions={monthOptions} season_data={season_data}/>:
                 <div className="h-[400px] flex place-items-center item-center justify-center">
                     <p>Coming soon</p>
                 </div>
