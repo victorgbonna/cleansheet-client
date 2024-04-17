@@ -5,13 +5,21 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query"
 
+// import { MainLayout } from '@/components'
+
+import { EnterChatContextComponent } from '@/context'
+
 const queryClient = new QueryClient();
 const queryCache = new QueryCache();
 
 export default function App({ Component, pageProps }) {
-  return( 
-  <QueryClientProvider client={queryClient} queryCache={queryCache}>
-    <Component {...pageProps} />;
-  </QueryClientProvider>
-  )
+  return(<>
+    <QueryClientProvider client={queryClient} queryCache={queryCache}>
+    <EnterChatContextComponent>
+      {/* <MainLayout> */}
+        <Component {...pageProps} />  
+      {/* </MainLayout> */}
+    </EnterChatContextComponent>
+    </QueryClientProvider>
+  </>)
 }

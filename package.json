@@ -23,7 +23,8 @@
     "plotly.js-dist": "^2.30.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "autoprefixer": "^10",
