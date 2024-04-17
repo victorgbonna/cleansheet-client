@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
 import { useEffect, useMemo, useState, useContext } from "react";
 import { EnterChatContext } from "@/context";
-import XLSX from "xlsx";
+import * as XLSX from 'xlsx';
 import { EnterChatModal, Ok } from '@/components/modal'
 
 export default function Result() {
@@ -24,14 +24,14 @@ export default function Result() {
     })
   }
   const months=['January', 'February', 'March', 'April', 'May', 'June', 'August', 'September', 'October', 'November', 'December']
-  const {isLoading:seasonLoading, data:season_data, error, isError:isSeasonError}= useQuery(
+  const {isLoading:seasonLoading, isFetching, data:season_data, error, isError:isSeasonError}= useQuery(
     {
       queryKey:['season-info:',routerQuery.league, routerQuery.year],
       queryFn:()=>getSeasonData(),
       onSettled:(data)=>{
         consolelog({finalData:data})
 
-      },
+      },refetchOnWindowFocus:false,
       enabled:routerIsReady && !showModal,
       retry:false,
     }
@@ -164,7 +164,7 @@ export default function Result() {
                   <h1 className="uppercase text-xl font-bold">{routerQuery.year} {routerQuery.league} STATISTICS <span className="opacity-75 text-sm lowercase">{csv?.all_data?.length? ' out of '+csv?.data?.length+' matches':''}</span></h1>
                   <div className="flex gap-x-4 text-sm">
                     <button onClick={()=>setShowModal('yes')} className="rounded-md text-white bg-blue-500 px-3 py-2">Select Another Season</button>
-                    <button onClick={()=>downloadRecordAsExcel({data:csv.all_data, name:body.season+'_'+body.year+'.xlsx'})} className="rounded-md bg-green-500 text-white px-3 py-2">Download Data</button>
+                    <button onClick={()=>downloadRecordAsExcel({data:csv.all_data, name:routerQuery.league+'_'+routerQuery.year+'.xlsx'})} className="rounded-md bg-green-500 text-white px-3 py-2">Download Data</button>
                     <button className="rounded-md bg-gray-200 px-3 py-2 opacity-3 text-gray-600" disabled={true}>Download Report <span className="text-xs">{'(TBA)'}</span></button>
                     
                   </div>
@@ -224,9 +224,9 @@ export default function Result() {
             <div style={(seasonLoading && false) || (isSeasonError && false)?{justifyContent:"center"}:{}} 
               className={`min-h-[580px] flex items-center flex-col`}>
               <DataFetch 
-                isLoading={seasonLoading} 
+                isLoading={seasonLoading || !csv?.all_data?.length} 
                 isError={isSeasonError} 
-                isEmpty={!seasonLoading && !csv?.all_data?.length} errorMsg={error?.message}
+                isEmpty={!csv?.all_data.length} errorMsg={error?.message}
                 emptyComponent={
                   <div className="">
                     <p>Data gotten is empty</p>
@@ -255,29 +255,40 @@ export default function Result() {
         setShowModal(false)
         routerPushSolo(new_query)
       }}/>
-      {!!season_not_equal?.problem 
+      {(!!season_not_equal?.problem) 
         &&
         <Ok 
           problemObj={season_not_equal}
           text={
             season_not_equal.problem==="over-complete"?
-            <div className="flex justify-center item-center">
-              <p>WARNING!! WARNING !!</p> 
-              <p>You might encounter some discrepancies in the analysis as the data scraped from the source is over-populated.</p>
-              <p>If you're looking for the beauty of analysis, you can pass it up.</p> 
-              <p>However, if you want correct information, please be patient as our staff is currently working on them.</p>
+            <div className="flex justify-center items-center flex-col">
+              <img src="/svg/warning.svg" alt="warning" className="w-[60px] h-[60px] mb-4"/>
+              <p className="font-semibold text-md">The data seems to be more than expected.</p>
+              {/* <p className="text-sm my-4">There might be a duplicate team.</p>  */}
+              <div className="self-start mb-6">
+                <p className="text-sm my-4 mb-3 text-left">Possible causes - </p>
+                <div className="text-left text-sm font-semibold">
+                  <p>There might be a duplicate team</p>
+                  <p>There might be an invalid team</p>
+                </div>
+              </div>
+              <p className="font-semibold text-sm italic">Do well to be patient, our team is working on it.</p>
             </div>:
-           <div className="flex justify-center item-center">
-            <p>WARNING!! WARNING !!</p> 
-            <p>You may notice some discrepancies in the study since the data taken from the source happens to be under-populated.</p>
-            <p>The involved teams that might cause this are mentioned below.</p>
-            <div>
-              {season_not_equal.teamsInQuestion.map((team)=>
-                <p>{team}</p>
-              )}
+           <div className="flex justify-center items-center flex-col">
+            <img src="/svg/warning.svg" alt="warning" className="w-[60px] h-[60px] mb-4"/>
+            <p className="font-semibold text-md">The data seems to be in-complete.</p>
+            <div className="self-start mb-6">
+              <p className="text-sm my-4">The list of teams involved in this issue</p>
+              <div className="text-left text-sm font-semibold">
+                {season_not_equal.teamsInQuestion.slice(0,5).map((team,id)=>
+                
+                  <p key={id}>{team} {(id===4) && <span className="text-xs text-gray-400">+ {+season_not_equal.teamsInQuestion.length-5+' other clubs'}</span>}</p>
+                )}
+              </div>
             </div>
+            <p className="font-semibold text-sm italic">Do well to be patient, our team is working on it.</p>
             {/* t is highly possible that matches involving mentioned teams were not scraped properly by our scraper.  */}
-            <p>Do well to be patient, our team is working on it</p>
+            {/* <p></p> */}
           </div>}
           onClose={()=>set_season_not_equal({})}
         />

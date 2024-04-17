@@ -6,7 +6,7 @@ export default function DataFetch({children,
     loadingComponent=<Loading/>,
     isEmpty, isLoading}) {
     
-    if(isLoading){
+    if(isLoading || isEmpty){
         return loadingComponent
     }
     if(isError){

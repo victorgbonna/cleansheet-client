@@ -442,7 +442,14 @@ function General({data, monthOptions, season_data}){
                             (({stadium_total_goals,stadium_total_home_goals,stadium_highest_scoreline,stad,team},ind)=>
                             <div key={ind} className="flex items-center justify-between gap-x-3">
                                 <div className="flex items-center gap-x-3"> 
-                                    <ImageContainer src={'/images/epl/teams/arsenal.png'} className={'w-10 h-10 rounded-md'}/> 
+                                    <ImageContainer  
+                                        onError={({ currentTarget }) => {
+                                            currentTarget.onerror = null; // prevents looping
+                                            currentTarget.src='/images/no-club-crest.png';
+                                        }}
+                                        src={'/images/'+season_data?.league?.replace(' ', '').toLowerCase()+'/teams/'+team.toLowerCase().replace(' ','')+'.png'} 
+                                        className={'w-10 h-10 rounded-md'}
+                                        /> 
                                     <div>
                                         <p className="text-sm font-black mb-[4px]">{stad}</p>
                                         <div className="">

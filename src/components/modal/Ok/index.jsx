@@ -14,7 +14,7 @@ export default function Ok({onClose, text}) {
                         onClick={()=>{
                             onClose()
                         }} 
-                        className="bg-primary2 text-white pl-3 pr-3 rounded-sm w-full">OK</button>
+                        className="bg-blue-500 text-white pl-3 pr-3 rounded-md w-full py-2">OK</button>
                 </div>
             </div>
         </ModalLayout>
