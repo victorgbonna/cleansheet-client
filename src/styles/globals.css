@@ -2,9 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
-
-/* @import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;1,200;1,300;1,400;1,600&display=swap"); */
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -19,10 +18,15 @@
   } */
 }
 
+.roboto{
+  font-family: var(--font-roboto);
+}
 
+.nunito{
+  font-family: var(--font-nunito);
+}
 body {
   /* color: rgb(var(--foreground-rgb)); */
-  font-family: "Inter", sans-serif;
   overflow-y: hidden  
   /* background: linear-gradient(
       to bottom,
@@ -31,7 +35,20 @@ body {
     )
     rgb(var(--background-start-rgb)); */
 }
+*{
+  font-family: var(--font-nunito);
 
+}
+.result *{
+  font-family: var(--font-inter) !important;
+
+}
+.nunito{
+  /* font-family: "Work Sans", sans-serif !important; */
+  font-family: "Nunito Sans", sans-serif !important;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -49,6 +66,21 @@ body {
     transform: scale(1);
   }
 }
+.table {
+  animation: appear 0.4s;
+}
+table {
+  vertical-align: text-top;
+  table-layout: auto;
+}
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 ul {
   list-style-type: none;
 }
@@ -58,3 +90,5 @@ ul {
   padding: 0;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
+

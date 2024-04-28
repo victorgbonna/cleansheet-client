@@ -40,7 +40,7 @@ const Sidebar=({onClick, active})=> {
     return (
         <aside className="sticky overflow-y-hidden top-0 p-[30px] w-[230px] rounded-[18px] text-[#4D4D4D] border-r-2">
             <div>
-                <h2 className="text-[#E51837] text-[19px] font-medium">FootyDataScraper</h2>
+                <h2 className="text-[#E51837] text-[19px] font-medium ">FootyDataScraper</h2>
                 <p style={{textAlign:"right"}} className="text-xs italic mt-2 mb-8">project done by <Link className="underline" href={'https://greyhaired-victorgbonna.vercel.app/'}>victorgbonna</Link></p>
             </div>
             {/* background:"#1B59F81A", color:"#1B59F8", backgroundOpacity:"10%" */}
