@@ -119,7 +119,7 @@ export default function EnterChatModal({onNext}) {
                             /> */}
                             <SelectOption
                                 options={
-                                    [...Array(13).keys()].map((x)=>(2010+x)+'–'+(''+(2011+x)).slice(2,))
+                                    [...Array(15).keys()].map((x)=>(2010+x)+'–'+(''+(2011+x)).slice(2,))
                                 }
                                 value={msgObj.year || ''} 
                                 onChange={(e)=>formChange(e,'year', true)}
