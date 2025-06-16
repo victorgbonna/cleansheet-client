@@ -82,7 +82,7 @@ export default function Result() {
       // const ending_month=csv_files?.find(({game_week})=>game_week===38)?.match_date.split(' ')[1]
       // const ending_month=Math.max(...csv_files.filter(game=>parseInt(game.game_week)).map(game => game.game_week))
       let gmwks=csv_files.map(game => parseInt(game.game_week))
-      let gmwks_withx_nan=gmwks.filter(gmwk=> typeof gmwk == "number")
+      let gmwks_withx_nan=gmwks.filter(item => typeof item === "number" && !Number.isNaN(item));
       const unique_gmwk=new Set(gmwks_withx_nan)
       consolelog({unique_gmwk})
       console.log(Math.max(...unique_gmwk))
