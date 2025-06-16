@@ -36,7 +36,7 @@ export default function Result() {
       retry:false,
     }
   )
-  console.log({season_data, error})
+  // console.log({season_data, error})
   const downloadRecordAsExcel= ({data, name}) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
@@ -58,7 +58,7 @@ export default function Result() {
     const body=season_data?.data?.data?.body 
     // || {}
 
-    console.log({csv_files})
+    consolelog({csv_files})
     // calculate the total handshakes = (n*(n-1))/2
     if (body.overFilled>0){
         set_season_not_equal({
@@ -81,11 +81,11 @@ export default function Result() {
       const starting_month=csv_files[0].match_date.split(' ')[1]
       // const ending_month=csv_files?.find(({game_week})=>game_week===38)?.match_date.split(' ')[1]
       // const ending_month=Math.max(...csv_files.filter(game=>parseInt(game.game_week)).map(game => game.game_week))
-      const unique_gmwk=new Set(csv_files.map(game => parseInt(game.game_week)))
+      const unique_gmwk=new Set(csv_files.map(game => parseInt(game.game_week)).filter(gmwk=>typeof gmwk == "number"))
       consolelog({unique_gmwk})
       console.log(Math.max(...unique_gmwk))
       const ending_month_match=csv_files.find(game=>parseInt(game.game_week)==Math.max(...unique_gmwk))
-      console.log({ending_month_match})
+      consolelog({ending_month_match})
       const ending_month=ending_month_match.match_date.split(' ')[1]
       
       console.log('passed here')
