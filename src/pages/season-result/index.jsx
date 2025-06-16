@@ -36,7 +36,7 @@ export default function Result() {
       retry:false,
     }
   )
-
+  console.log({season_data, error})
   const downloadRecordAsExcel= ({data, name}) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
@@ -58,7 +58,7 @@ export default function Result() {
     const body=season_data?.data?.data?.body 
     // || {}
 
-    consolelog({csv_files})
+    console.log({csv_files})
     // calculate the total handshakes = (n*(n-1))/2
     if (body.overFilled>0){
         set_season_not_equal({
