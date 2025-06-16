@@ -81,7 +81,9 @@ export default function Result() {
       const starting_month=csv_files[0].match_date.split(' ')[1]
       // const ending_month=csv_files?.find(({game_week})=>game_week===38)?.match_date.split(' ')[1]
       // const ending_month=Math.max(...csv_files.filter(game=>parseInt(game.game_week)).map(game => game.game_week))
-      const unique_gmwk=new Set(csv_files.map(game => parseInt(game.game_week)).filter(gmwk=>typeof gmwk == "number"))
+      let gmwks=csv_files.map(game => parseInt(game.game_week)
+      let gmwks_withx_nan=gmwks.filter(gmwk=>typeof gmwk == "number")
+      const unique_gmwk=new Set(gmwks_withx_nan))
       consolelog({unique_gmwk})
       console.log(Math.max(...unique_gmwk))
       const ending_month_match=csv_files.find(game=>parseInt(game.game_week)==Math.max(...unique_gmwk))
