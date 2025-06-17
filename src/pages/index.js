@@ -70,10 +70,11 @@ export default function Home() {
               <div>
                 <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
                   <thead>
-                    <tr className="text-sm text-center">
+                    <tr className="text-sm text-left">
                       <th>League</th>
                       <th>Season</th>
                       <th className="text-left">Date</th>
+                    
                     </tr>
                   </thead>
                 </table>
@@ -81,7 +82,7 @@ export default function Home() {
                   <table className="table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
                   <tbody>
                       {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
-                        <tr key={ind} className="text-xs text-right">
+                        <tr key={ind} className="text-xs text-left">
                           <td>
                             <div className="flex items-end gap-x-[2px]">
                               <img src={'/images/'+league?.replace(' ', '')?.toLowerCase()+'.svg'}/>
