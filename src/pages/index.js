@@ -78,8 +78,8 @@ export default function Home() {
                     </tr>
                   </thead>
                 </table>
-                <div className="w-full max-h-[300px] overflow-y-auto flex">
-                  <table className="table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
+                <div className="w-full max-h-[250px] overflow-y-auto flex">
+                  <table className="table border-separate border-spacing-x-8 border-spacing-y-4 w-full">
                   <tbody>
                       {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
                         <tr key={ind} className="text-xs text-left">
@@ -96,7 +96,7 @@ export default function Home() {
                             </div>
                             
                           </td>
-                          <td className="text-[#2C2C2C] text-right">{year}</td>
+                          <td className="text-[#2C2C2C] text-center">{year}</td>
                           <td className="text-black font-medium text-right">
                               {
                                 (() => {
