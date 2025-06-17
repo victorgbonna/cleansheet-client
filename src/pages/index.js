@@ -125,6 +125,7 @@ export default function Home() {
         window.location.href="/season-result?league="+new_query.league+'&year='+new_query.year
         return
       }}/>
+    </>
     </main>
   );
 }
