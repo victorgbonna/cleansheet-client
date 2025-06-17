@@ -72,7 +72,7 @@ export default function Home() {
                   <thead>
                     <tr className="text-sm text-left">
                       <th>League</th>
-                      <th>Season</th>
+                      <th className="">Season</th>
                       <th className="text-left">Date</th>
                     
                     </tr>
