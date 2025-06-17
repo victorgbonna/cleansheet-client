@@ -97,7 +97,7 @@ export default function Home() {
                             
                           </td>
                           <td className="text-[#2C2C2C] text-right">
-                            <p className="pl-[50px]">{year}</p>
+                            <p className="pl-[30px]">{year}</p>
                           </td>
                           <td className="text-black font-medium text-right">
                               {
