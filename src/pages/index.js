@@ -67,7 +67,7 @@ export default function Home() {
               <p className="text-center text-sm font-medium text-[#474747] mb-2">
                 Recent Searches - {seasons_data?.data?.seasons?.length || ''}
               </p>
-              <div className="w-full max-h-[400px] overflow-y-auto">
+              <div>
                 <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
                   <thead>
                     <tr className="text-sm text-center">
@@ -76,6 +76,9 @@ export default function Home() {
                       <th className="text-left">Date</th>
                     </tr>
                   </thead>
+                </table>
+                <div className="w-full max-h-[300px] overflow-y-auto">
+                  <table className="table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
                   <tbody>
                       {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
                         <tr key={ind} className="text-xs text-center">
@@ -96,12 +99,13 @@ export default function Home() {
                           <td className="text-left text-black font-medium">{
                             new Date(created_at).getDate() + "/" + 
                             (+new Date(created_at).getMonth()<10? '0'+(+new Date(created_at).getMonth() + 1):(+new Date(created_at).getMonth() + 1)) 
-                            + "/" + new Date(created_at).getFullYear()
+                            + "/" + new Date(created_at).getFullYear()+', '+new Date(created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
                           }</td>
                         </tr>                    
                       )}
                   </tbody>
                 </table>
+                </div>
               </div>
               </div>
               }
