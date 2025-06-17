@@ -36,9 +36,13 @@ export default function Home() {
         <meta name="description" content="Explore comprehensive stats and highlights from the football season. Discover match performances, goal-scoring tdends, and key highlights for valuable insights into the season's top moments." />
         {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
+      <>
+      <div className="largepc:hidden pc:hidden tablet:flex justify-center">
+          <p>I apologise for the incovinience. This application is not available on mobile yet, you can only view on PC</p>
+      </div>
       <div 
       // style={{backgroundImage: `}} 
-        className="relative h-screen w-screen tablet:h-fit p-6 flex flex-cols items-center">
+        className="relative h-screen w-screen tablet:h-fit p-6 flex flex-cols items-center tablet:hidden">
         <img className="z-1 absolute inset-0 h-full w-full" 
         src="https://res.cloudinary.com/greyhairedgallery/image/upload/v1714247792/altaria_hub_uploads/ajvmfxu8s1m4qiqdrytc.jpg"
         
@@ -61,9 +65,9 @@ export default function Home() {
               :
               <div style={seasonLoading?{visibility:'hidden'}:{}}>
               <p className="text-center text-sm font-medium text-[#474747] mb-2">
-                Recent Searches
+                Recent Searches - {seasons_data?.data?.seasons?.length || ''}
               </p>
-              <div className="w-full">
+              <div className="w-full overflow max-h-[400px] overflow-h-auto h-fit">
                 <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
                   <thead>
                     <tr className="text-sm text-center">
@@ -73,7 +77,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                      {seasons_data?.data?.seasons?.slice(0,3)?.map(({league, year,created_at},ind)=>
+                      {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
                         <tr key={ind} className="text-xs text-center">
                           <td>
                             <div className="flex items-end gap-x-[2px]">
