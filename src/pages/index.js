@@ -96,11 +96,19 @@ export default function Home() {
                             
                           </td>
                           <td className="text-[#2C2C2C]">{year}</td>
-                          <td className="text-left text-black font-medium">{
-                            new Date(created_at).getDate() + "/" + 
-                            (+new Date(created_at).getMonth()<10? '0'+(+new Date(created_at).getMonth() + 1):(+new Date(created_at).getMonth() + 1)) 
-                            + "/" + new Date(created_at).getFullYear()+', '+new Date(created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-                          }</td>
+                          <td className="text-left text-black font-medium">
+                              {
+                                (() => {
+                                  const date = new Date(created_at);
+                                  const day = date.getDate();
+                                  const month = date.getMonth() + 1;
+                                  const year = date.getFullYear();
+                                  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                            
+                                  return `${day}/${month < 10 ? '0' + month : month}/${year}, ${time}`;
+                                })()
+                              }
+                          </td>
                         </tr>                    
                       )}
                   </tbody>
