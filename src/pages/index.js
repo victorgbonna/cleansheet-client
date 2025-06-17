@@ -78,7 +78,7 @@ export default function Home() {
                     </tr>
                   </thead>
                 </table>
-                <div className="w-full max-h-[250px] overflow-y-auto flex">
+                <div className="w-full max-h-[180px] overflow-y-auto flex">
                   <table className="table border-separate border-spacing-x-8 border-spacing-y-4 w-full">
                   <tbody>
                       {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
