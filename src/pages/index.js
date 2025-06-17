@@ -38,7 +38,7 @@ export default function Home() {
       </Head>
       <>
       <div className="largepc:hidden pc:hidden tablet:flex justify-center">
-          <p>I apologise for the incovinience. This application is not available on mobile yet, you can only view on PC</p>
+          <p>I apologise for the inconvenience. This application is not available on mobile yet, you can only view on PC</p>
       </div>
       <div 
       // style={{backgroundImage: `}} 
@@ -67,7 +67,7 @@ export default function Home() {
               <p className="text-center text-sm font-medium text-[#474747] mb-2">
                 Recent Searches - {seasons_data?.data?.seasons?.length || ''}
               </p>
-              <div className="w-full overflow max-h-[400px] overflow-h-auto h-fit">
+              <div className="w-full max-h-[400px] overflow-y-auto">
                 <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
                   <thead>
                     <tr className="text-sm text-center">
