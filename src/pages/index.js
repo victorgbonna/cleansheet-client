@@ -72,7 +72,7 @@ export default function Home() {
                   <thead>
                     <tr className="text-sm text-left">
                       <th>League</th>
-                      <th className="pl-[-200px]">Season</th>
+                      <th className="">Season</th>
                       <th className="text-left">Date</th>
                     
                     </tr>
@@ -96,7 +96,9 @@ export default function Home() {
                             </div>
                             
                           </td>
-                          <td className="text-[#2C2C2C] text-right">{year}</td>
+                          <td className="text-[#2C2C2C] text-right">
+                            <p className="pl-[50px]">{year}</p>
+                          </td>
                           <td className="text-black font-medium text-right">
                               {
                                 (() => {
