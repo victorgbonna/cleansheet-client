@@ -24,6 +24,7 @@ export default function Home() {
     {
       queryKey:['all-seasons'],
       queryFn:()=>getAllSeasonsData(),
+      refetchOnWindowFocus: false,
       retry:false,
     }
   )
