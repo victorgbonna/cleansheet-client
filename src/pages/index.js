@@ -57,7 +57,7 @@ export default function Home() {
               <button onClick={()=>setShowModal('yes')} className="rounded-md border border-[#007605] text-sm font-semibold text-green px-10 py-4 text-[#007605] bg-white">Test Now</button>
 
             </div>
-            // !seasonLoading
+            {/* // !seasonLoading */}
             {1 ?<div className="py-5 rounded-md bg-white border basis-[45%]">
               {
               0?

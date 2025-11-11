@@ -1,3 +1,54 @@
 problem - no pattern for announcement https://en.wikipedia.org/wiki/2013%E2%80%9314_Celta_de_Vigo_season
 
 no pattetn too - https://en.wikipedia.org/wiki/2021%E2%80%9322_Leeds_United_F.C._season
+
+// <div>
+              //   <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
+              //     <thead>
+              //       <tr className="text-sm text-left">
+              //         <th>League</th>
+              //         <th className="">Season</th>
+              //         <th className="text-left">Date</th>
+                    
+              //       </tr>
+              //     </thead>
+              //   </table>
+              //   <div className="w-full max-h-[180px] overflow-y-auto flex">
+              //     <table className="table border-separate border-spacing-x-8 border-spacing-y-4 w-full">
+              //     <tbody>
+              //         {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
+              //           <tr key={ind} className="text-xs text-left">
+              //             <td>
+              //               <div className="flex items-end gap-x-[2px]">
+              //                 <img src={'/images/'+league?.replace(' ', '')?.toLowerCase()+'.svg'}/>
+              //                 <p className="text-black font-semibold" 
+              //                   style={
+              //                     league==="epl"?{textTransform:"uppercase"}:
+              //                       {textTransform:"capitalize"}
+              //                   }
+                                
+              //                 >{league}</p>
+              //               </div>
+                            
+              //             </td>
+              //             <td className="text-[#2C2C2C] text-right">
+              //               <p className="pl-[30px]">{year}</p>
+              //             </td>
+              //             <td className="text-black font-medium text-right">
+              //                 {
+              //                   (() => {
+              //                     const date = new Date(created_at);
+              //                     const day = date.getDate();
+              //                     const month = date.getMonth() + 1;
+              //                     const year = date.getFullYear();
+              //                     const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                            
+              //                     return `${day}/${month < 10 ? '0' + month : month}/${year}, ${time}`;
+              //                   })()
+              //                 }
+              //             </td>
+              //           </tr>                    
+              //         )}
+              //     </tbody>
+              //   </table>
+              //   </div>
