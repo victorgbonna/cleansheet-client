@@ -57,67 +57,68 @@ export default function Home() {
               <button onClick={()=>setShowModal('yes')} className="rounded-md border border-[#007605] text-sm font-semibold text-green px-10 py-4 text-[#007605] bg-white">Test Now</button>
 
             </div>
-            {!seasonLoading ?<div className="py-5 rounded-md bg-white border basis-[45%]">
+            // !seasonLoading
+            {1 ?<div className="py-5 rounded-md bg-white border basis-[45%]">
               {
               0?
-              <div className="h-[300px] w-full">
+              <div className="h-fit w-full">
 
               </div>
               :
-              <div style={seasonLoading?{visibility:'hidden'}:{}}>
+              <div style={seasonLoading?{visibility:'hiddenx'}:{}}>
               <p className="text-center text-sm font-medium text-[#474747] mb-2">
-                Recent Searches - {seasons_data?.data?.seasons?.length || ''}
+                Recent Searches - {'32' ?? seasons_data?.data?.seasons?.length}
               </p>
-              <div>
-                <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
-                  <thead>
-                    <tr className="text-sm text-left">
-                      <th>League</th>
-                      <th className="">Season</th>
-                      <th className="text-left">Date</th>
+              // <div>
+              //   <table className=" table border-separate border-spacing-x-8 border-spacing-y-2 w-full">
+              //     <thead>
+              //       <tr className="text-sm text-left">
+              //         <th>League</th>
+              //         <th className="">Season</th>
+              //         <th className="text-left">Date</th>
                     
-                    </tr>
-                  </thead>
-                </table>
-                <div className="w-full max-h-[180px] overflow-y-auto flex">
-                  <table className="table border-separate border-spacing-x-8 border-spacing-y-4 w-full">
-                  <tbody>
-                      {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
-                        <tr key={ind} className="text-xs text-left">
-                          <td>
-                            <div className="flex items-end gap-x-[2px]">
-                              <img src={'/images/'+league?.replace(' ', '')?.toLowerCase()+'.svg'}/>
-                              <p className="text-black font-semibold" 
-                                style={
-                                  league==="epl"?{textTransform:"uppercase"}:
-                                    {textTransform:"capitalize"}
-                                }
+              //       </tr>
+              //     </thead>
+              //   </table>
+              //   <div className="w-full max-h-[180px] overflow-y-auto flex">
+              //     <table className="table border-separate border-spacing-x-8 border-spacing-y-4 w-full">
+              //     <tbody>
+              //         {seasons_data?.data?.seasons?.map(({league, year,created_at},ind)=>
+              //           <tr key={ind} className="text-xs text-left">
+              //             <td>
+              //               <div className="flex items-end gap-x-[2px]">
+              //                 <img src={'/images/'+league?.replace(' ', '')?.toLowerCase()+'.svg'}/>
+              //                 <p className="text-black font-semibold" 
+              //                   style={
+              //                     league==="epl"?{textTransform:"uppercase"}:
+              //                       {textTransform:"capitalize"}
+              //                   }
                                 
-                              >{league}</p>
-                            </div>
+              //                 >{league}</p>
+              //               </div>
                             
-                          </td>
-                          <td className="text-[#2C2C2C] text-right">
-                            <p className="pl-[30px]">{year}</p>
-                          </td>
-                          <td className="text-black font-medium text-right">
-                              {
-                                (() => {
-                                  const date = new Date(created_at);
-                                  const day = date.getDate();
-                                  const month = date.getMonth() + 1;
-                                  const year = date.getFullYear();
-                                  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+              //             </td>
+              //             <td className="text-[#2C2C2C] text-right">
+              //               <p className="pl-[30px]">{year}</p>
+              //             </td>
+              //             <td className="text-black font-medium text-right">
+              //                 {
+              //                   (() => {
+              //                     const date = new Date(created_at);
+              //                     const day = date.getDate();
+              //                     const month = date.getMonth() + 1;
+              //                     const year = date.getFullYear();
+              //                     const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
                             
-                                  return `${day}/${month < 10 ? '0' + month : month}/${year}, ${time}`;
-                                })()
-                              }
-                          </td>
-                        </tr>                    
-                      )}
-                  </tbody>
-                </table>
-                </div>
+              //                     return `${day}/${month < 10 ? '0' + month : month}/${year}, ${time}`;
+              //                   })()
+              //                 }
+              //             </td>
+              //           </tr>                    
+              //         )}
+              //     </tbody>
+              //   </table>
+              //   </div>
               </div>
               </div>
               }
